@@ -22,9 +22,24 @@ public class DoctorController {
         return "doctors";
     }
 
+    // Add doctor
     @PostMapping("/add")
     public String addDoctor(@ModelAttribute Doctor doctor) {
         doctorService.save(doctor);
+        return "redirect:/doctors";
+    }
+
+    // Edit doctor
+    @PostMapping("/edit")
+    public String editDoctor(@ModelAttribute Doctor doctor) {
+        doctorService.save(doctor);  // JPA detects existing id → UPDATE
+        return "redirect:/doctors";
+    }
+
+    // Delete doctor
+    @PostMapping("/delete/{id}")
+    public String deleteDoctor(@PathVariable Long id) {
+        doctorService.deleteById(id);
         return "redirect:/doctors";
     }
 }
