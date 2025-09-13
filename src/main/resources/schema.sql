@@ -16,3 +16,7 @@ INSERT INTO doctors (name, department, available_today) VALUES
 ('Dr. Michael Brown', 'Orthopedics', TRUE),
 ('Dr. Sarah Wilson', 'Pediatrics', TRUE),
 ('Dr. Raj Kumar', 'General Medicine', FALSE);
+
+ALTER TABLE doctors ADD COLUMN about TEXT;
+ALTER TABLE doctors ADD COLUMN available_today BOOLEAN DEFAULT false;
+ALTER TABLE doctors MODIFY COLUMN available_today BOOLEAN NOT NULL DEFAULT 0;

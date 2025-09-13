@@ -29,4 +29,8 @@ public class DoctorService {
     public Doctor findById(Long id) {
         return doctorRepository.findById(id).orElse(null);
     }
+
+    public List<Doctor> search(String name, String department, Boolean available) {
+        return doctorRepository.search(name, department, available);
+    }
 }
