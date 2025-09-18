@@ -15,3 +15,4 @@ INSERT INTO appointments (appointment_date, status, reason, doctor_id, patient_i
 (NOW(), 'Scheduled', 'Chest Pain', 1, 1),
 (NOW(), 'Completed', 'Knee Checkup', 2, 2),
 (NOW() + INTERVAL 1 DAY, 'Scheduled', 'Headache', 3, 3);
+
