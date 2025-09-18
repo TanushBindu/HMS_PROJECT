@@ -3,21 +3,68 @@
 <head>
     <title>Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>.sidebar{width:220px;position:fixed;height:100%;background:#198754;color:#fff;padding:20px}.content{margin-left:240px;padding:20px}</style>
+    <style>
+        .sidebar {
+            width:220px;
+            position:fixed;
+            height:100%;
+            background:#198754;
+            color:#fff;
+            padding:20px
+        }
+        .content {
+            margin-left:240px;
+            padding:20px
+        }
+        .card-link {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
 </head>
 <body>
 <div class="sidebar">
     <h5>HMS Admin</h5>
     <a href="/admin/dashboard" class="d-block text-white mt-3">Dashboard</a>
     <a href="/doctors" class="d-block text-white mt-2">Manage Doctors</a>
+    <a href="/patients" class="d-block text-white mt-2">Manage Patients</a>
+    <a href="/appointments" class="d-block text-white mt-2">Manage Appointments</a>
     <a href="/logout" class="d-block text-white mt-2">Logout</a>
 </div>
+
 <div class="content">
     <h3>Admin Dashboard</h3>
     <div class="row">
-        <div class="col-md-4"><div class="card p-3">Patients</div></div>
-        <div class="col-md-4"><div class="card p-3">Doctors</div></div>
-        <div class="col-md-4"><div class="card p-3">Accounts</div></div>
+        <!-- Patients Card -->
+        <div class="col-md-4">
+            <a href="/patients" class="card-link">
+                <div class="card p-3 shadow-sm">
+                    <h5>Patients</h5>
+                    <p>Manage patients</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Doctors Card -->
+        <div class="col-md-4">
+            <a href="/doctors" class="card-link">
+                <div class="card p-3 shadow-sm">
+                    <h5>Doctors</h5>
+                    <p>Manage doctors</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Appointments Card -->
+        <div class="col-md-4">
+            <a href="/appointments" class="card-link">
+                <div class="card p-3 shadow-sm">
+                    <h5>Appointments</h5>
+                    <p>Manage appointments</p>
+                </div>
+            </a>
+        </div>
     </div>
 </div>
-</body></html>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!-- Edit Appointment Modal -->
+<div class="modal fade" id="editApptModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form th:action="@{/appointments/save}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Appointment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="edit-id">
+
+                    <div class="mb-3"><label>Patient</label>
+                        <select name="patient.id" id="edit-patient" class="form-control" required>
+                            <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.name}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3"><label>Doctor</label>
+                        <select name="doctor.id" id="edit-doctor" class="form-control" required>
+                            <option th:each="d : ${doctors}" th:value="${d.id}" th:text="${d.name}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3"><label>Date & Time</label>
+                        <input type="datetime-local" name="dateTime" id="edit-dateTime" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3"><label>Reason</label>
+                        <input type="text" name="reason" id="edit-reason" class="form-control">
+                    </div>
+
+                    <div class="mb-3"><label>Status</label>
+                        <select name="status" id="edit-status" class="form-control">
+                            <option value="Scheduled">Scheduled</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
