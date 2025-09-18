@@ -2,39 +2,33 @@ package com.hms.service;
 
 import com.hms.model.Appointment;
 import com.hms.repository.AppointmentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class AppointmentService {
 
-    @Autowired
-    private AppointmentRepository appointmentRepository;
+    private final AppointmentRepository repo;
 
-    public List<Appointment> getAllAppointments() {
-        return appointmentRepository.findAll();
+    public AppointmentService(AppointmentRepository repo) {
+        this.repo = repo;
     }
 
-    public List<Appointment> getTodaysAppointments() {
-        LocalDateTime start = LocalDate.now().atStartOfDay();
-        LocalDateTime end = start.plusDays(1);
-        return appointmentRepository.findByAppointmentDateBetween(start, end);
+    public List<Appointment> findAll() {
+        return repo.findAll();
     }
 
-    public Appointment getAppointment(Long id) {
-        return appointmentRepository.findById(id).orElse(null);
+    public Appointment findById(Long id) {
+        return repo.findById(id).orElse(null);
     }
 
-    public Appointment saveAppointment(Appointment appt) {
-        return appointmentRepository.save(appt);
+    public Appointment save(Appointment appointment) {
+        return repo.save(appointment);
     }
 
-    public void deleteAppointment(Long id) {
-        appointmentRepository.deleteById(id);
+    public void deleteById(Long id) {
+        repo.deleteById(id); // deletes by primary key, no transient entity involved
     }
 
 }
