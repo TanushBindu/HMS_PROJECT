@@ -1,5 +1,6 @@
 package com.hms.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -19,12 +20,12 @@ public class Appointment {
     private String reason;
 
     @ManyToOne
-    @JoinColumn(name = "doctor_id", nullable = false)
-    private Doctor doctor;
+    @JsonIgnoreProperties({"appointments"})  // avoid recursion
+    private Patient patient;
 
     @ManyToOne
-    @JoinColumn(name = "patient_id", nullable = false)
-    private Patient patient;
+    @JsonIgnoreProperties({"appointments"})
+    private Doctor doctor;
 
     @PrePersist
     public void prePersist() {

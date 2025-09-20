@@ -34,4 +34,13 @@ public class PatientService {
     public void deleteById(Long id) {
         repo.deleteById(id);
     }
+
+
+    public List<Patient> getOpdPatients() {
+        return repo.findByType("OPD");
+    }
+
+    public List<Patient> getInPatients() {
+        return repo.findByType("In-Patient");
+    }
 }

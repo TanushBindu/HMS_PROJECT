@@ -2,10 +2,12 @@ package com.hms.controller;
 
 import com.hms.model.Patient;
 import com.hms.service.PatientService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -18,26 +20,42 @@ public class PatientController {
         this.service = service;
     }
 
+    @GetMapping("/patients")
+    public String allPatients(Model model) {
+        model.addAttribute("activeTab", "all");
+        model.addAttribute("patients", service.getAllPatients());
+        return "patients";
+    }
+
+    @GetMapping("/patients/opd")
+    public String opdPatients(Model model) {
+        model.addAttribute("patients", service.getOpdPatients());
+        model.addAttribute("activeTab", "opd");
+        return "patients";
+    }
+
+    @GetMapping("/patients/in")
+    public String inPatients(Model model) {
+        model.addAttribute("patients", service.getInPatients());
+        model.addAttribute("activeTab", "in");
+        return "patients";
+    }
+
+    // Optional JSON endpoint for edit modal
+    @GetMapping("/patients/get/{id}")
+    @ResponseBody
+    public ResponseEntity<Patient> getPatient(@PathVariable Long id) {
+        Patient p = service.getPatientById(id);
+        if (p == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(p);
+    }
+
     // List patients with optional type filter: /patients?type=OPD
     @GetMapping
     public String listPatients(@RequestParam(value = "type", required = false) String type, Model model) {
         List<Patient> patients = (type == null) ? service.getAllPatients() : service.getPatientsByType(type);
         model.addAttribute("patients", patients);
         return "patients"; // returns src/main/resources/templates/patients.html
-    }
-
-    // ✅ Explicit GET by ID for edit
-    @GetMapping("/get/{id}")
-    @ResponseBody
-    public Patient getPatient(@PathVariable Long id) {
-        return service.getPatientById(id);
-    }
-
-    // Save create or update
-    @PostMapping("/save")
-    public String savePatient(Patient patient) {
-        service.save(patient);
-        return "redirect:/patients";
     }
 
     @GetMapping("/{id}")
