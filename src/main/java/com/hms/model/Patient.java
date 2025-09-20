@@ -1,10 +1,12 @@
 package com.hms.model;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "patients")
 public class Patient {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -12,14 +14,17 @@ public class Patient {
     private String name;
     private Integer age;
     private String gender;
-
-    @Column(name = "contact_number")
-    private String contactNumber;
-
+    private String phone;
     private String address;
     private String type; // OPD / In-Patient
 
-    // Getters & setters (no Lombok)
+    // Optional: OneToMany relationship with appointments
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Appointment> appointments;
+
+    public Patient() {}
+
+    // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -32,12 +37,15 @@ public class Patient {
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }
 
-    public String getContactNumber() { return contactNumber; }
-    public void setContactNumber(String contactNumber) { this.contactNumber = contactNumber; }
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
 
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
+
+    public List<Appointment> getAppointments() { return appointments; }
+    public void setAppointments(List<Appointment> appointments) { this.appointments = appointments; }
 }

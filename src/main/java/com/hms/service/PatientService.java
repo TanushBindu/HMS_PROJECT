@@ -2,45 +2,58 @@ package com.hms.service;
 
 import com.hms.model.Patient;
 import com.hms.repository.PatientRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PatientService {
 
-    private final PatientRepository repo;
+    @Autowired
+    private PatientRepository patientRepository;
 
-    public PatientService(PatientRepository repo) {
-        this.repo = repo;
-    }
-
+    // Get all patients
     public List<Patient> getAllPatients() {
-        return repo.findAll();
+        return patientRepository.findAll();
     }
 
-    public List<Patient> getPatientsByType(String type) {
-        return repo.findByType(type);
+    // Get patient by ID
+    public Optional<Patient> getPatientById(Long id) {
+        return patientRepository.findById(id);
     }
 
-    public Patient getPatientById(Long id) {
-        return repo.findById(id).orElse(null);
+    // Save new patient
+    public Patient savePatient(Patient patient) {
+        return patientRepository.save(patient);
     }
 
-    public Patient save(Patient p) {
-        return repo.save(p);
+    // Update existing patient
+    public Patient updatePatient(Long id, Patient updatedPatient) {
+        return patientRepository.findById(id).map(patient -> {
+            patient.setName(updatedPatient.getName());
+            patient.setAge(updatedPatient.getAge());
+            patient.setGender(updatedPatient.getGender());
+            patient.setPhone(updatedPatient.getPhone());
+            patient.setAddress(updatedPatient.getAddress());
+            patient.setType(updatedPatient.getType());
+            return patientRepository.save(patient);
+        }).orElseThrow(() -> new RuntimeException("Patient not found with id " + id));
     }
 
-    public void deleteById(Long id) {
-        repo.deleteById(id);
+    // Delete patient
+    public void deletePatient(Long id) {
+        patientRepository.deleteById(id);
     }
 
-
-    public List<Patient> getOpdPatients() {
-        return repo.findByType("OPD");
+    // Count OPD patients
+    public long countOPDPatients() {
+        return patientRepository.countByType("OPD");
     }
 
-    public List<Patient> getInPatients() {
-        return repo.findByType("In-Patient");
+    // Count In-Patients
+    public long countInPatients() {
+        return patientRepository.countByType("In-Patient");
     }
 }

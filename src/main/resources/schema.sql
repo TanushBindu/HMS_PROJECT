@@ -16,6 +16,7 @@ CREATE TABLE IF EXISTS patients (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     gender VARCHAR(10),
+    phone VARCHAR(10),
     type VARCHAR(20) -- OPD / INPATIENT
 );
 
