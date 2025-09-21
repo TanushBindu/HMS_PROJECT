@@ -1,6 +1,9 @@
 package com.hms.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "doctors")
@@ -18,6 +21,10 @@ public class Doctor {
     @Column(length = 2000)
     private String about;
 
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("doctor")
+    private List<Appointment> appointments;
+
     // --- Getters & Setters ---
     public Long getId() {
         return id;
@@ -25,6 +32,14 @@ public class Doctor {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public List<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(List<Appointment> appointments) {
+        this.appointments = appointments;
     }
 
     public String getName() {

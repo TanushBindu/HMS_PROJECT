@@ -5,6 +5,7 @@ import com.hms.repository.DoctorRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DoctorService {
@@ -14,8 +15,16 @@ public class DoctorService {
         this.doctorRepository = doctorRepository;
     }
 
+    public Optional<Doctor> getDoctorById(Long id) {
+        return doctorRepository.findById(id);
+    }
+
     public List<Doctor> getAllDoctors() {
         return doctorRepository.findAll();
+    }
+
+    public Doctor saveDoctor(Doctor doctor) {
+        return doctorRepository.save(doctor);
     }
 
     public Doctor save(Doctor d) {

@@ -12,44 +12,40 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "appointment_date")
+    private String reason;
+    private String status;
+
+    @Column(nullable = false)
     private LocalDateTime appointmentDate;
 
-
-    private String status;
-    private String reason;
-
-    @ManyToOne
-    @JsonIgnoreProperties({"appointments"})  // avoid recursion
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "patient_id")
+    @JsonIgnoreProperties("appointments") // prevent recursion
     private Patient patient;
 
-    @ManyToOne
-    @JsonIgnoreProperties({"appointments"})
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "doctor_id")
+    @JsonIgnoreProperties("appointments") // prevent recursion
     private Doctor doctor;
 
-    @PrePersist
-    public void prePersist() {
-        if (appointmentDate == null) {
-            appointmentDate = LocalDateTime.now();
-        }
-    }
+    public Appointment() {}
 
-    // getters / setters
+    // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public LocalDateTime getAppointmentDate() { return appointmentDate; }
     public void setAppointmentDate(LocalDateTime appointmentDate) { this.appointmentDate = appointmentDate; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
     public String getReason() { return reason; }
     public void setReason(String reason) { this.reason = reason; }
 
-    public Doctor getDoctor() { return doctor; }
-    public void setDoctor(Doctor doctor) { this.doctor = doctor; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
     public Patient getPatient() { return patient; }
     public void setPatient(Patient patient) { this.patient = patient; }
+
+    public Doctor getDoctor() { return doctor; }
+    public void setDoctor(Doctor doctor) { this.doctor = doctor; }
 }

@@ -5,30 +5,34 @@ import com.hms.repository.AppointmentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AppointmentService {
 
-    private final AppointmentRepository repo;
+    private final AppointmentRepository appointmentRepository;
 
-    public AppointmentService(AppointmentRepository repo) {
-        this.repo = repo;
+    public AppointmentService(AppointmentRepository appointmentRepository) {
+        this.appointmentRepository = appointmentRepository;
     }
 
-    public List<Appointment> findAll() {
-        return repo.findAll();
+    public long getTodayAppointmentsCount() {
+        return appointmentRepository.countTodayAppointments();
     }
 
-    public Appointment findById(Long id) {
-        return repo.findById(id).orElse(null);
+    public List<Appointment> getAllAppointments() {
+        return appointmentRepository.findAll();
     }
 
-    public Appointment save(Appointment appointment) {
-        return repo.save(appointment);
+    public Optional<Appointment> getAppointmentById(Long id) {
+        return appointmentRepository.findById(id);
     }
 
-    public void deleteById(Long id) {
-        repo.deleteById(id); // deletes by primary key, no transient entity involved
+    public Appointment saveAppointment(Appointment appointment) {
+        return appointmentRepository.save(appointment);
     }
 
+    public void deleteAppointment(Long id) {
+        appointmentRepository.deleteById(id);
+    }
 }

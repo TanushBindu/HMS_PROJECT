@@ -1,5 +1,6 @@
 package com.hms.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -19,7 +20,8 @@ public class Patient {
     private String type; // OPD / In-Patient
 
     // Optional: OneToMany relationship with appointments
-    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("patient")
     private List<Appointment> appointments;
 
     public Patient() {}
