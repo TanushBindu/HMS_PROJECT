@@ -1,85 +1,141 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Manage Doctors</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>Doctors</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .doctor-card {
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            transition: 0.3s;
+            background: #fff;
+            box-shadow: 0px 3px 10px rgba(0,0,0,0.1);
+        }
+        .doctor-card:hover {
+            transform: scale(1.05);
+        }
+        .doctor-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    </style>
 </head>
-<body>
-<div class="container-fluid">
-    <div class="row">
-        <nav class="col-md-2 d-none d-md-block bg-success text-white" style="min-height:100vh;padding:20px;">
-            <h5>HMS</h5>
-            <a class="text-white d-block mt-3" href="/admin/dashboard">Dashboard</a>
-            <a class="text-white d-block mt-2" href="/doctors">Manage Doctors</a>
-            <a class="text-white d-block mt-2" href="/logout">Logout</a>
-        </nav>
-        <main class="col-md-10 ms-sm-auto px-4">
-            <div class="d-flex justify-content-between align-items-center mt-4">
-                <h2>Doctors</h2>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#doctorModal">Add Doctor</button>
-            </div>
-            <div class="table-responsive mt-3">
-                <table class="table table-bordered">
-                    <thead class="table-light"><tr><th>ID</th><th>Name</th><th>Department</th><th>Email</th><th>Phone</th><th>Available</th><th>Actions</th></tr></thead>
-                    <tbody>
-                    <tr th:each="doc : ${doctors}">
-                        <td th:text="${doc.id}"></td>
-                        <td th:text="${doc.name}"></td>
-                        <td th:text="${doc.department}"></td>
-                        <td th:text="${doc.email}"></td>
-                        <td th:text="${doc.phone}"></td>
-                        <td>
-                            <form th:action="@{'/doctors/toggle/' + ${doc.id}}" method="post">
-                                <button type="submit" class="btn btn-sm" th:classappend="${doc.availableToday} ? 'btn-success' : 'btn-secondary'"> <span th:text="${doc.availableToday} ? 'Yes' : 'No'"></span></button>
-                            </form>
-                        </td>
-                        <td>
-                            <button class="btn btn-warning btn-sm" th:attr="data-id=${doc.id},data-name=${doc.name},data-department=${doc.department},data-email=${doc.email},data-phone=${doc.phone},data-available=${doc.availableToday}" onclick="openEdit(this)">Edit</button>
-                            <a th:href="@{'/doctors/delete/' + ${doc.id}}" class="btn btn-danger btn-sm" onclick="return confirm('Delete?')">Delete</a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </main>
+<body class="bg-light">
+
+<div class="container py-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Doctors</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDoctorModal">+ Add Doctor</button>
     </div>
-</div>
-<!-- Modal -->
-<div class="modal fade" id="doctorModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form id="doctorForm" th:action="@{/doctors/add}" method="post">
-        <div class="modal-header"><h5 class="modal-title">Add Doctor</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-        <div class="modal-body">
-            <input type="hidden" id="docId" name="id">
-            <div class="mb-3"><label>Name</label><input type="text" id="docName" name="name" class="form-control" required></div>
-            <div class="mb-3"><label>Department</label><input type="text" id="docDept" name="department" class="form-control" required></div>
-            <div class="mb-3"><label>Email</label><input type="email" id="docEmail" name="email" class="form-control"></div>
-            <div class="mb-3"><label>Phone</label><input type="text" id="docPhone" name="phone" class="form-control"></div>
-            <div class="form-check mb-3">
-              <input type="hidden" name="availableToday" value="false"/>
-              <input type="checkbox" id="docAvail" name="availableToday" class="form-check-input" value="true">
-              <label class="form-check-label">Available Today</label>
+
+    <!-- Search bar -->
+    <form th:action="@{/doctors/search}" method="get" class="row mb-4 g-2">
+        <div class="col-md-4">
+            <input type="text" name="name" placeholder="Search by name" class="form-control">
+        </div>
+        <div class="col-md-4">
+            <input type="text" name="department" placeholder="Search by department" class="form-control">
+        </div>
+        <div class="col-md-4">
+            <select name="available" class="form-select">
+                <option value="">All</option>
+                <option value="true">Available Today</option>
+                <option value="false">Not Available</option>
+            </select>
+        </div>
+        <div class="col-md-12 text-end">
+            <button type="submit" class="btn btn-outline-primary">Search</button>
+        </div>
+    </form>
+
+    <!-- Doctors Grid -->
+    <div class="row g-4">
+        <div class="col-md-3" th:each="doctor : ${doctors}">
+            <div class="doctor-card">
+                <img th:src="@{/images/doctor.png}" alt="Doctor" class="doctor-avatar mb-2">
+                <h5 th:text="${doctor.name}">Doctor Name</h5>
+                <p th:text="${doctor.department}">Specialization</p>
+                <p>
+                    <span th:text="${doctor.availableToday} ? 'Available' : 'Not Available'"></span>
+                </p>
+                <button class="btn btn-sm btn-outline-primary"
+                        data-bs-toggle="modal"
+                        th:data-bs-target="'#doctorModal-' + ${doctor.id}">
+                    View
+                </button>
             </div>
         </div>
-        <div class="modal-footer"><button type="submit" class="btn btn-success">Save</button><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button></div>
-      </form>
     </div>
-  </div>
+
+    <!-- Doctor Detail Modal -->
+    <div th:each="doctor : ${doctors}"
+         th:id="'doctorModal-' + ${doctor.id}"
+         class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-3">
+                <div class="modal-header">
+                    <h5 class="modal-title" th:text="${doctor.name}">Doctor Name</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><b>Department:</b> <span th:text="${doctor.department}"></span></p>
+                    <p><b>Available Today:</b>
+                        <span th:text="${doctor.availableToday} ? 'Yes' : 'No'"></span></p>
+                    <p><b>About:</b> <span th:text="${doctor.about}">Doctor bio goes here</span></p>
+                </div>
+                <div class="modal-footer">
+                    <a th:href="@{'/doctors/edit/' + ${doctor.id}}" class="btn btn-warning">Edit</a>
+                    <a th:href="@{'/doctors/delete/' + ${doctor.id}}"
+                       class="btn btn-danger"
+                       onclick="return confirm('Are you sure you want to delete this doctor?');">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Doctor Modal -->
+    <div class="modal fade" id="addDoctorModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-3">
+                <form th:action="@{/doctors/add}" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Doctor</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <input type="text" name="name" class="form-control" placeholder="Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" name="department" class="form-control" placeholder="Department" required>
+                        </div>
+                        <div class="mb-3">
+                            <textarea name="about" class="form-control" placeholder="About doctor"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <select name="availableToday" class="form-select">
+                                <option value="true">Available Today</option>
+                                <option value="false">Not Available</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Save</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  function openEdit(btn){
-    const id = btn.getAttribute('data-id');
-    document.getElementById('docId').value = id;
-    document.getElementById('docName').value = btn.getAttribute('data-name');
-    document.getElementById('docDept').value = btn.getAttribute('data-department');
-    document.getElementById('docEmail').value = btn.getAttribute('data-email');
-    document.getElementById('docPhone').value = btn.getAttribute('data-phone');
-    document.getElementById('docAvail').checked = btn.getAttribute('data-available') === 'true';
-    document.getElementById('doctorForm').action = '/doctors/edit/' + id;
-    var modal = new bootstrap.Modal(document.getElementById('doctorModal')); modal.show();
-  }
-</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

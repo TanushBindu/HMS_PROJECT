@@ -1,18 +1,32 @@
-CREATE DATABASE IF NOT EXISTS hms_db;
-USE hms_db;
+CREATE DATABASE IF NOT EXISTS hospital_db;
+USE hospital_db;
 
--- Create doctors table if not already created
-CREATE TABLE IF NOT EXISTS doctors (
+DROP TABLE IF EXISTS appointments;
+DROP TABLE IF EXISTS patients;
+DROP TABLE IF EXISTS doctors;
+
+CREATE TABLE IF EXISTS doctors (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    department VARCHAR(100) NOT NULL,
-    available_today BOOLEAN DEFAULT FALSE
+    department VARCHAR(100),
+    available_today BOOLEAN DEFAULT TRUE
 );
 
--- Insert some dummy doctors
-INSERT INTO doctors (name, department, available_today) VALUES
-('Dr. John Smith', 'Cardiology', TRUE),
-('Dr. Emily Davis', 'Neurology', FALSE),
-('Dr. Michael Brown', 'Orthopedics', TRUE),
-('Dr. Sarah Wilson', 'Pediatrics', TRUE),
-('Dr. Raj Kumar', 'General Medicine', FALSE);
+CREATE TABLE IF EXISTS patients (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    gender VARCHAR(10),
+    phone VARCHAR(10),
+    type VARCHAR(20) -- OPD / INPATIENT
+);
+
+CREATE TABLE appointments (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    appointment_date DATETIME NOT NULL,
+    status VARCHAR(50),
+    reason VARCHAR(255),
+    doctor_id BIGINT NOT NULL,
+    patient_id BIGINT NOT NULL,
+    CONSTRAINT fk_doc FOREIGN KEY (doctor_id) REFERENCES doctors(id),
+    CONSTRAINT fk_pat FOREIGN KEY (patient_id) REFERENCES patients(id)
+);

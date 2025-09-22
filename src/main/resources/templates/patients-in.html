@@ -1,0 +1,17 @@
+<h2>IN Patients</h2>
+<table>
+    <thead><tr><th>ID</th><th>Name</th><th>Age</th><th>Gender</th><th>Phone</th><th>Actions</th></tr></thead>
+    <tbody>
+    <tr th:each="p : ${patients}">
+        <td th:text="${p.id}"></td>
+        <td th:text="${p.name}"></td>
+        <td th:text="${p.age}"></td>
+        <td th:text="${p.gender}"></td>
+        <td th:text="${p.phone}"></td>
+        <td>
+            <a th:href="@{/patients/edit/{id}(id=${p.id})}">Edit</a> |
+            <a th:href="@{/patients/delete/{id}(id=${p.id})}" onclick="return confirm('Delete?')">Delete</a>
+        </td>
+    </tr>
+    </tbody>
+</table>

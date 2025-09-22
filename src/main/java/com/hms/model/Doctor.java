@@ -1,29 +1,45 @@
 package com.hms.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "doctors")
 public class Doctor {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
     private String department;
-    private String email;
 
-    private String phone;
+    private Boolean availableToday;  // ✅ boolean type
 
-    @Column(name = "available_today")
-    private Boolean availableToday;
+    @Column(length = 2000)
+    private String about;
 
-    // getters/setters
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("doctor")
+    private List<Appointment> appointments;
+
+    // --- Getters & Setters ---
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public List<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(List<Appointment> appointments) {
+        this.appointments = appointments;
     }
 
     public String getName() {
@@ -42,27 +58,23 @@ public class Doctor {
         this.department = department;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
+    // ✅ Getter follows JavaBean convention
     public Boolean getAvailableToday() {
-        return availableToday;
+        return availableToday != null ? availableToday : false;
     }
 
-    public void setAvailableToday(Boolean availableToday) {
+
+    public void setAvailableToday(boolean availableToday) {
         this.availableToday = availableToday;
     }
+
+    public String getAbout() {
+        return about;
+    }
+
+    public void setAbout(String about) {
+        this.about = about;
+    }
+
 }
+

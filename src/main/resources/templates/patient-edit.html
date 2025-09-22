@@ -1,0 +1,24 @@
+<form th:action="@{/patients/update/{id}(id=${patient.id})}" th:object="${patient}" method="post">
+    <!-- CSRF token if Spring Security is enabled -->
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+    <label>Name</label>
+    <input type="text" th:field="*{name}" />
+
+    <label>Age</label>
+    <input type="number" th:field="*{age}" />
+
+    <label>Gender</label>
+    <input type="text" th:field="*{gender}" />
+
+    <label>Phone</label>
+    <input type="text" th:field="*{phone}" />
+
+    <label>Type</label>
+    <select th:field="*{type}">
+        <option value="OPD">OPD</option>
+        <option value="IN">IN</option>
+    </select>
+
+    <button type="submit">Update</button>
+</form>
