@@ -68,7 +68,7 @@ public class AppointmentController {
         model.addAttribute("appointments", appointmentService.getAllAppointments());
         model.addAttribute("appointment", new Appointment());
 
-        model.addAttribute("patients", patientService.getAllPatients());
+        model.addAttribute("patients", patientService.findAll());
         model.addAttribute("doctors", doctorService.getAllDoctors());
 
         List<String> reasons = List.of("Consultation","Follow-up","Emergency","Checkup");
@@ -89,7 +89,7 @@ public class AppointmentController {
         model.addAttribute("totalCount", appointments.size());
 
         model.addAttribute("appointment", new Appointment());
-        model.addAttribute("patients", patientService.getAllPatients());
+        model.addAttribute("patients", patientService.findAll());
         model.addAttribute("doctors", doctorService.getAllDoctors());
 
         return "appointments";
@@ -101,7 +101,7 @@ public class AppointmentController {
     @PostMapping("/appointments/save")
     public String saveAppointment(@ModelAttribute Appointment appointment) {
         // set patient & doctor
-        Patient patient = patientService.getPatientById(appointment.getPatient().getId())
+        Patient patient = patientService.findById(appointment.getPatient().getId())
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
         Doctor doctor = doctorService.getDoctorById(appointment.getDoctor().getId())
                 .orElseThrow(() -> new RuntimeException("Doctor not found"));
@@ -114,17 +114,21 @@ public class AppointmentController {
     }
 
 
+    public void showDashboard(Long patientId) {
+        Long upcomingCount = appointmentService.countUpcomingForPatient(patientId);
+        System.out.println("Upcoming appointments: " + upcomingCount);
+    }
     // --- Update appointment ---
     @PostMapping("/appointments/update")
     public String updateAppointment(@ModelAttribute Appointment appointment) {
         Appointment existing = appointmentService.getAppointmentById(appointment.getId())
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
-        existing.setReason(appointment.getReason());
+        existing.setTreatment(appointment.getTreatment());
         existing.setStatus(appointment.getStatus());
-        existing.setAppointmentDate(appointment.getAppointmentDate());
+        existing.setDateTime(appointment.getDateTime());
 
-        Patient patient = patientService.getPatientById(appointment.getPatient().getId())
+        Patient patient = patientService.findById(appointment.getPatient().getId())
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
         Doctor doctor = doctorService.getDoctorById(appointment.getDoctor().getId())
                 .orElseThrow(() -> new RuntimeException("Doctor not found"));

@@ -4,6 +4,9 @@ import com.hms.model.Appointment;
 import com.hms.repository.AppointmentRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +17,13 @@ public class AppointmentService {
 
     public AppointmentService(AppointmentRepository appointmentRepository) {
         this.appointmentRepository = appointmentRepository;
+    }
+
+    public Long countTodayAppointments() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
+        return appointmentRepository.getTodayAppointmentsCount(startOfDay, endOfDay);
     }
 
     public long getTodayAppointmentsCount() {
@@ -35,4 +45,8 @@ public class AppointmentService {
     public void deleteAppointment(Long id) {
         appointmentRepository.deleteById(id);
     }
+    public Long countUpcomingForPatient(Long patientId) {
+        return appointmentRepository.countUpcomingForPatient(patientId, LocalDateTime.now());
+    }
 }
+

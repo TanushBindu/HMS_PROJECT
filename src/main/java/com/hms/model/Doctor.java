@@ -1,8 +1,9 @@
 package com.hms.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.hms.model.Appointment;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -14,67 +15,35 @@ public class Doctor {
     private Long id;
 
     private String name;
-    private String department;
 
-    private Boolean availableToday;  // ✅ boolean type
+    private String specialization; // replaces department
+    private String contact;
 
-    @Column(length = 2000)
-    private String about;
+    private String about;          // optional description
+    private Boolean availableToday; // optional availability flag
 
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("doctor")
-    private List<Appointment> appointments;
+    private List<Appointment> appointments = new ArrayList<>();
 
-    // --- Getters & Setters ---
-    public Long getId() {
-        return id;
-    }
+    // Getters and Setters for all fields
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public List<Appointment> getAppointments() {
-        return appointments;
-    }
+    public String getSpecialization() { return specialization; }
+    public void setSpecialization(String specialization) { this.specialization = specialization; }
 
-    public void setAppointments(List<Appointment> appointments) {
-        this.appointments = appointments;
-    }
+    public String getContact() { return contact; }
+    public void setContact(String contact) { this.contact = contact; }
 
-    public String getName() {
-        return name;
-    }
+    public String getAbout() { return about; }
+    public void setAbout(String about) { this.about = about; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public Boolean getAvailableToday() { return availableToday; }
+    public void setAvailableToday(Boolean availableToday) { this.availableToday = availableToday; }
 
-    public String getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(String department) {
-        this.department = department;
-    }
-
-    // ✅ Getter follows JavaBean convention
-    public Boolean getAvailableToday() {
-        return availableToday != null ? availableToday : false;
-    }
-
-
-    public void setAvailableToday(boolean availableToday) {
-        this.availableToday = availableToday;
-    }
-
-    public String getAbout() {
-        return about;
-    }
-
-    public void setAbout(String about) {
-        this.about = about;
-    }
-
+    public List<Appointment> getAppointments() { return appointments; }
+    public void setAppointments(List<Appointment> appointments) { this.appointments = appointments; }
 }
-

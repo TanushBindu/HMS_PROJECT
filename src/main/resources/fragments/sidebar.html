@@ -1,0 +1,15 @@
+<div id="sidebar" class="bg-dark text-white vh-100">
+    <div class="sidebar-header p-3">HMS Dashboard</div>
+    <ul class="list-unstyled">
+        <li th:if="${role == 'ADMIN'}"><a th:href="@{/dashboard}">Dashboard</a></li>
+        <li th:if="${role == 'ADMIN' or role == 'DOCTOR'}"><a th:href="@{/patients}">Patients</a></li>
+        <li th:if="${role == 'PATIENT'}"><a th:href="@{/patients/me}">About Me</a></li>
+        <li th:if="${role == 'ADMIN' or role == 'PATIENT'}"><a th:href="@{/doctors}">Doctors List</a></li>
+        <li th:if="${role == 'DOCTOR'}"><a th:href="@{/doctors/me}">About Me</a></li>
+        <li th:if="${role != 'PATIENT' or role == 'ADMIN'}"><a th:href="@{/appointments}">Appointments</a></li>
+        <li th:if="${role == 'ADMIN' or role == 'DOCTOR'}"><a th:href="@{/appointments/add}">Add Appointment</a></li>
+        <li th:if="${role == 'PATIENT'}"><a th:href="@{/appointments/create}">Create Appointment</a></li>
+        <li th:if="${role == 'ADMIN'}"><a th:href="@{/accounts}">Accounts</a></li>
+        <li><a th:href="@{/logout}">Logout</a></li>
+    </ul>
+</div>

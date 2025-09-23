@@ -1,11 +1,11 @@
 package com.hms.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
-import java.util.List;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 @Entity
-@Table(name = "patients")
 public class Patient {
 
     @Id
@@ -13,41 +13,67 @@ public class Patient {
     private Long id;
 
     private String name;
-    private Integer age;
+    private String contact;
+    private int age;
     private String gender;
-    private String phone;
-    private String address;
-    private String type; // OPD / In-Patient
+    private String password;
+    private String type; // OPD / IN
+    private String username;  // ✅ ensure this exists
 
-    // Optional: OneToMany relationship with appointments
-    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("patient")
-    private List<Appointment> appointments;
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public Patient() {}
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    // Getters and setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getContact() {
+        return contact;
+    }
+    public void setContact(String contact) {
+        this.contact = contact;
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getType() {
+        return type;
+    }
+    public void setType(String type) {
+        this.type = type;
+    }
 
-    public Integer getAge() { return age; }
-    public void setAge(Integer age) { this.age = age; }
+    public String getPassword() {
+        return password;
+    }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-    public String getGender() { return gender; }
-    public void setGender(String gender) { this.gender = gender; }
+    public String getUsername() {   // ✅ getter
+        return username;
+    }
+    public void setUsername(String username) {  // ✅ setter
+        this.username = username;
+    }
 
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
+    public String getGender() {   // ✅ getter
+        return gender;
+    }
+    public void setGender(String gender) {  // ✅ setter
+        this.gender = gender;
+    }
 
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
-
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
-
-    public List<Appointment> getAppointments() { return appointments; }
-    public void setAppointments(List<Appointment> appointments) { this.appointments = appointments; }
+    public int getAge() {   // ✅ getter
+        return age;
+    }
+    public void setAge(int age) {  // ✅ setter
+        this.age= age;
+    }
 }

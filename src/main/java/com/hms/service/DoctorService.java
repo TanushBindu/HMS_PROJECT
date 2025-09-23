@@ -40,6 +40,6 @@ public class DoctorService {
     }
 
     public List<Doctor> search(String name, String department, Boolean available) {
-        return doctorRepository.search(name, department, available);
+        return doctorRepository.searchByKeyword(name != null ? name : "");
     }
 }

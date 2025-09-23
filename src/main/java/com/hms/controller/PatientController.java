@@ -1,47 +1,59 @@
 package com.hms.controller;
 
 import com.hms.model.Patient;
+import com.hms.service.AppointmentService;
 import com.hms.service.PatientService;
+import com.hms.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @Controller
 @RequestMapping("/patients")
 public class PatientController {
 
-    @Autowired
-    private PatientService patientService;
+    private final PatientService patientService;
 
-    // Show patients page
+    public PatientController(PatientService patientService) {
+        this.patientService = patientService;
+    }
+
+    // List patients
     @GetMapping
-    public String patientsPage(Model model) {
-        List<Patient> patients = patientService.getAllPatients();
-        model.addAttribute("patients", patients);
-        model.addAttribute("patient", new Patient()); // For Add modal
-        model.addAttribute("opdCount", patientService.countOPDPatients());
-        model.addAttribute("inCount", patientService.countInPatients());
-        return "patients"; // Thymeleaf template
+    public String listPatients(Model model) {
+        model.addAttribute("patients", patientService.findAll());
+        model.addAttribute("role", "ADMIN"); // TODO: replace with actual logged-in role
+        return "patients";
+    }
+
+    // Show Add Patient form
+    @GetMapping("/add")
+    public String showAddForm(Model model) {
+        model.addAttribute("patient", new Patient());
+        return "patient-form";
     }
 
     // Save new patient
     @PostMapping("/save")
-    public String savePatient(@ModelAttribute("patient") Patient patient) {
-        patientService.savePatient(patient);
+    public String savePatient(@ModelAttribute Patient patient) {
+        patientService.save(patient);
         return "redirect:/patients";
     }
 
-    // Get patient JSON for edit modal
-    @GetMapping("/get/{id}")
-    @ResponseBody
-    public ResponseEntity<Patient> getPatient(@PathVariable Long id) {
-        return patientService.getPatientById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    // Show Edit form
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model) {
+        Patient patient = patientService.findById(id)
+                .orElseThrow(() -> new RuntimeException("Patient not found"));
+        model.addAttribute("patient", patient);
+        return "patient-form";
     }
 
     // Update patient
@@ -51,10 +63,19 @@ public class PatientController {
         return "redirect:/patients";
     }
 
+    // View patient
+    @GetMapping("/view/{id}")
+    public String viewPatient(@PathVariable Long id, Model model) {
+        Patient patient = patientService.findById(id)
+                .orElseThrow(() -> new RuntimeException("Patient not found"));
+        model.addAttribute("patient", patient);
+        return "patient-view";
+    }
+
     // Delete patient
     @GetMapping("/delete/{id}")
     public String deletePatient(@PathVariable Long id) {
-        patientService.deletePatient(id);
+        patientService.deleteById(id);
         return "redirect:/patients";
     }
 }

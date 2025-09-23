@@ -1,0 +1,58 @@
+<div id="content" class="container-fluid">
+    <h2 class="mb-4">Doctor: <span th:text="${doctor.name}">Dr. Smith</span></h2>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" id="doctorTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile">Profile</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#appointments">Appointments</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#patients">Patients</button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- Profile -->
+        <div class="tab-pane fade show active" id="profile">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5>Doctor Information</h5>
+                    <p><strong>Name:</strong> <span th:text="${doctor.name}">Dr. Smith</span></p>
+                    <p><strong>Specialization:</strong> <span th:text="${doctor.specialization}">Cardiology</span></p>
+                    <p><strong>Contact:</strong> <span th:text="${doctor.contact}">9876543210</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointments -->
+        <div class="tab-pane fade" id="appointments">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">Upcoming Appointments</div>
+                <div class="card-body table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Patient</th>
+                            <th>Date & Time</th>
+                            <th>Status</th>
+                            <th th:if="${role == 'ADMIN'}">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="appt : ${doctorAppointments}">
+                            <td th:text="${appt.id}">1</td>
+                            <td th:text="${appt.patientName}">John Doe</td>
+                            <td th:text="${appt.dateTime}">2025-09-22 10:00 AM</td>
+                            <td>
+                                    <span th:text="${appt.status}" th:classappend="
+                                        ${appt.status == 'Scheduled'} ? 'badge bg-warning' :
+                                        ${appt.status == 'Completed'} ? 'badge bg-success' :
+                                        ${appt.status == 'Cancelled'} ? 'badge bg-danger' : 'badge bg-secondary'"></span>
+                            </td>
+                            <td th:if="${role == 'ADMIN'}">
+                                <a th:href="@{/appointments/edit/{id}(id=${appt.id})}" class="btn btn-sm btn-warning">Edit</a>
+                                <a th:href="@{/appointments/delete/{id}(id=${

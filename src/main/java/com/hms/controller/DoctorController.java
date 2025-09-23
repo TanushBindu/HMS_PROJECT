@@ -25,7 +25,7 @@ public class DoctorController {
         Doctor doctor = doctorService.findById(id);
         if (doctor != null) {
             doctor.setName(updatedDoctor.getName());
-            doctor.setDepartment(updatedDoctor.getDepartment());
+            doctor.setSpecialization(updatedDoctor.getSpecialization());
             doctor.setAvailableToday(updatedDoctor.getAvailableToday());
             doctor.setAbout(updatedDoctor.getAbout()); // ✅
             doctorService.save(doctor);
