@@ -2,7 +2,6 @@ package com.hms.controller;
 
 import com.hms.model.Doctor;
 import com.hms.service.DoctorService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -11,54 +10,53 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/doctors")
 public class DoctorController {
 
-    @Autowired
-    private DoctorService doctorService;
+    private final DoctorService doctorService;
+
+    public DoctorController(DoctorService doctorService) {
+        this.doctorService = doctorService;
+    }
 
     @GetMapping
     public String listDoctors(Model model) {
         model.addAttribute("doctors", doctorService.getAllDoctors());
+        model.addAttribute("totalDoctors", doctorService.getTotalDoctors());
+        model.addAttribute("availableToday", doctorService.getAvailableToday());
+        model.addAttribute("onLeave", doctorService.getOnLeave());
+        model.addAttribute("bySpecialization", doctorService.getDoctorsBySpecialization());
         return "doctors";
     }
 
-    @PostMapping("/edit/{id}")
-    public String updateDoctor(@PathVariable Long id, @ModelAttribute Doctor updatedDoctor) {
-        Doctor doctor = doctorService.findById(id);
-        if (doctor != null) {
-            doctor.setName(updatedDoctor.getName());
-            doctor.setSpecialization(updatedDoctor.getSpecialization());
-            doctor.setAvailableToday(updatedDoctor.getAvailableToday());
-            doctor.setAbout(updatedDoctor.getAbout()); // ✅
-            doctorService.save(doctor);
-        }
-        return "redirect:/doctors";
+    @GetMapping("/add")
+    public String showAddForm(Model model) {
+        model.addAttribute("doctor", new Doctor());
+        return "doctor-form";
     }
 
-
-    @GetMapping("/search")
-    public String searchDoctors(@RequestParam(required = false) String name,
-                                @RequestParam(required = false) String department,
-                                @RequestParam(required = false) Boolean available,
-                                Model model) {
-        model.addAttribute("doctors", doctorService.search(name, department, available));
-        return "doctors";
-    }
-
-    @PostMapping("/add")
-    public String addDoctor(Doctor doctor) {
-        doctorService.save(doctor);
-        return "redirect:/doctors";
-    }
-
-    @GetMapping("/delete/{id}")
-    public String deleteDoctor(@PathVariable Long id) {
-        doctorService.deleteById(id);
+    @PostMapping("/save")
+    public String saveDoctor(@ModelAttribute Doctor doctor) {
+        doctorService.saveDoctor(doctor);
         return "redirect:/doctors";
     }
 
     @GetMapping("/edit/{id}")
-    public String editDoctor(@PathVariable Long id, Model model) {
-        model.addAttribute("doctor", doctorService.findById(id));
-        return "edit-doctor"; // A separate page/modal for editing
+    public String showEditForm(@PathVariable Long id, Model model) {
+        Doctor doctor = doctorService.getDoctorById(id)
+                .orElseThrow(() -> new RuntimeException("Doctor not found with id: " + id));
+        model.addAttribute("doctor", doctor);
+        return "doctor-form";
+    }
+
+    @GetMapping("/view/{id}")
+    public String viewDoctor(@PathVariable Long id, Model model) {
+        Doctor doctor = doctorService.getDoctorById(id)
+                .orElseThrow(() -> new RuntimeException("Doctor not found with id: " + id));
+        model.addAttribute("doctor", doctor);
+        return "doctor-view";
+    }
+
+    @GetMapping("/delete/{id}")
+    public String deleteDoctor(@PathVariable Long id) {
+        doctorService.deleteDoctor(id);
+        return "redirect:/doctors";
     }
 }
-

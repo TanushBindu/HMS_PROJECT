@@ -1,5 +1,6 @@
 package com.hms.repository;
 
+import com.hms.dto.AccountsMonthlyIncome;
 import com.hms.model.Appointment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,24 +11,26 @@ import java.util.List;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    // Count appointments today
-    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.dateTime >= :startOfDay AND a.dateTime <= :endOfDay")
-    Long getTodayAppointmentsCount(@Param("startOfDay") LocalDateTime startOfDay,
-                                   @Param("endOfDay") LocalDateTime endOfDay);
+    long countByAppointmentDateBetween(LocalDateTime start, LocalDateTime end);
 
-    // Count all today appointments without parameters
-    default Long countTodayAppointments() {
-        LocalDateTime startOfDay = LocalDateTime.now().toLocalDate().atStartOfDay();
-        LocalDateTime endOfDay = LocalDateTime.now().toLocalDate().atTime(23,59,59);
-        return getTodayAppointmentsCount(startOfDay, endOfDay);
-    }
+    @Query("SELECT a FROM Appointment a WHERE LOWER(a.patient.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(a.doctor.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<Appointment> search(@Param("keyword") String keyword);
 
-    // Count upcoming appointments for a patient
-    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.patient.id = :patientId AND a.dateTime > :now")
-    Long countUpcomingForPatient(@Param("patientId") Long patientId,
-                                 @Param("now") LocalDateTime now);
+    // Search by patient or doctor name
+    @Query("SELECT a FROM Appointment a WHERE LOWER(a.patient.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(a.doctor.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<Appointment> findByPatientNameContainingIgnoreCaseOrDoctorNameContainingIgnoreCase(@Param("keyword") String keyword, @Param("keyword") String keyword2);
+    // Specialist-wise monthly income
+    @Query("SELECT new com.hms.dto.AccountsMonthlyIncome(p.type, SUM(i.amount), MONTH(i.date))\n" +
+            "FROM Invoice i\n" +
+            "JOIN i.patient p\n" +
+            "WHERE YEAR(i.date) = :year\n" +
+            "GROUP BY p.type, MONTH(i.date)")
+    List<AccountsMonthlyIncome> getSpecialistMonthlyIncome(int year);
 
-    // Other repository methods
-    List<Appointment> findByPatientId(Long patientId);
-    List<Appointment> findByPatientIdAndStatus(Long patientId, String status);
+    // OPD/IPD monthly income
+    @Query("SELECT new com.hms.dto.AccountsMonthlyIncome(p.type, SUM(i.amount), MONTH(i.date)) " +
+            "FROM Invoice i JOIN i.patient p " +
+            "WHERE YEAR(i.date) = :year " +
+            "GROUP BY p.type, MONTH(i.date)")
+    List<AccountsMonthlyIncome> getPatientTypeMonthlyIncome(@Param("year")int year);
 }

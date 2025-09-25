@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Invoice</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <h2>Create Invoice</h2>
+    <form th:action="@{/invoices/add}" method="post">
+
+        <!-- Patient Dropdown -->
+        <div class="mb-3">
+            <label class="form-label">Patient</label>
+            <select name="patientId" class="form-control" required>
+                <option value="">-- Select Patient --</option>
+                <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.name}"></option>
+            </select>
+        </div>
+
+        <!-- Doctor Dropdown -->
+        <div class="mb-3">
+            <label class="form-label">Doctor</label>
+            <select name="doctorId" class="form-control" required>
+                <option value="">-- Select Doctor --</option>
+                <option th:each="d : ${doctors}" th:value="${d.id}" th:text="${d.name}"></option>
+            </select>
+
+        </div>
+
+        <!-- Treatment -->
+        <div class="mb-3">
+            <label class="form-label">Treatment</label>
+            <input type="text" name="treatment" class="form-control" required/>
+        </div>
+
+        <!-- Amount -->
+        <div class="mb-3">
+            <label class="form-label">Amount</label>
+            <input type="number" step="0.01" name="amount" class="form-control" required/>
+        </div>
+
+        <!-- Payment Mode -->
+        <div class="mb-3">
+            <label class="form-label">Payment Mode</label>
+            <select name="paymentMode" class="form-control" required>
+                <option value="CASH">Cash</option>
+                <option value="CARD">Card</option>
+            </select>
+        </div>
+
+        <!-- Paid -->
+        <div class="mb-3">
+            <label class="form-label">Paid</label>
+            <select name="paid" class="form-control" required>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a th:href="@{/invoices}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+</body>
+</html>

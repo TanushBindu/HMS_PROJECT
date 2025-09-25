@@ -1,149 +1,91 @@
 package com.hms.controller;
 
 import com.hms.model.Appointment;
-import com.hms.model.Doctor;
-import com.hms.model.Patient;
+import com.hms.model.Appointment.Status;
+import com.hms.repository.DoctorRepository;
+import com.hms.repository.PatientRepository;
 import com.hms.service.AppointmentService;
 import com.hms.service.DoctorService;
 import com.hms.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/appointments")
 public class AppointmentController {
 
     @Autowired
-    private AppointmentService appointmentService;
+    private AppointmentService service;
 
     @Autowired
-    private PatientService patientService;
+    private PatientRepository patientRepository;
 
     @Autowired
-    private DoctorService doctorService;
+    private DoctorRepository doctorRepository;
 
-    // --- Display all appointments ---
-//    @GetMapping
-//    public String getAllAppointments(Model model) {
-//        List<Appointment> appointments = appointmentService.getAllAppointments();
-//        List<String> reasons = List.of("Consultation","Follow-up","Emergency","Checkup");
-//        List<String> statuses = List.of("Scheduled","Completed","Cancelled","Rescheduled");
-//
-//        model.addAttribute("appointments", appointments);
-//        model.addAttribute("appointment", new Appointment());
-//        model.addAttribute("reasons", reasons);
-//        model.addAttribute("statuses", statuses);
-//
-//        // Today's appointments count
-//        long todayCount = appointmentService.getTodayAppointmentsCount();
-//        model.addAttribute("todayCount", todayCount);
-//
-//        return "appointments"; // Thymeleaf template name
-//    }
-
-    public AppointmentController(AppointmentService appointmentService,
-                                 PatientService patientService,
-                                 DoctorService doctorService) {
-        this.appointmentService = appointmentService;
-        this.patientService = patientService;
-        this.doctorService = doctorService;
-    }
-
-        // --- Fetch appointment data by ID for Edit Modal ---
-        @GetMapping("/appointments/{id}")
-        @ResponseBody
-        public Appointment getAppointmentById(@PathVariable Long id) {
-            return appointmentService.getAppointmentById(id)
-                    .orElseThrow(() -> new RuntimeException("Appointment not found"));
-        }
-
+    // Show all appointments
     @GetMapping
-    public String showAppointmentsPage(Model model) {
-        model.addAttribute("appointments", appointmentService.getAllAppointments());
-        model.addAttribute("appointment", new Appointment());
-
-        model.addAttribute("patients", patientService.findAll());
-        model.addAttribute("doctors", doctorService.getAllDoctors());
-
-        List<String> reasons = List.of("Consultation","Follow-up","Emergency","Checkup");
-        List<String> statuses = List.of("Scheduled","Completed","Cancelled","Rescheduled");
-        model.addAttribute("reasons", reasons);
-        model.addAttribute("statuses", statuses);
-
-        model.addAttribute("todayCount", appointmentService.getTodayAppointmentsCount());
-        return "appointments"; // Thymeleaf template
-    }
-
-    @GetMapping("/appointments")
-    public String getAllAppointments(Model model) {
-        List<Appointment> appointments = appointmentService.getAllAppointments();
+    public String listAppointments(@RequestParam(required = false) String search, Model model) {
+        List<Appointment> appointments = (search == null || search.isEmpty())
+                ? service.getAll()
+                : service.search(search);
 
         model.addAttribute("appointments", appointments);
-        model.addAttribute("todayCount", appointmentService.getTodayAppointmentsCount());
-        model.addAttribute("totalCount", appointments.size());
-
-        model.addAttribute("appointment", new Appointment());
-        model.addAttribute("patients", patientService.findAll());
-        model.addAttribute("doctors", doctorService.getAllDoctors());
-
+        model.addAttribute("totalAppointments", service.totalAppointments());
+        model.addAttribute("todaysAppointments", service.todaysAppointments());
+        model.addAttribute("search", search);
         return "appointments";
     }
 
+    // Show Add Appointment form
+    @GetMapping("/add")
+    public String showAddForm(Model model) {
+        model.addAttribute("patients", patientRepository.findAll());
+        model.addAttribute("doctors", doctorRepository.findAll());
+        return "add-appointment"; // Create this template
+    }
 
-
-    // --- Save new appointment ---
-    @PostMapping("/appointments/save")
-    public String saveAppointment(@ModelAttribute Appointment appointment) {
-        // set patient & doctor
-        Patient patient = patientService.findById(appointment.getPatient().getId())
-                .orElseThrow(() -> new RuntimeException("Patient not found"));
-        Doctor doctor = doctorService.getDoctorById(appointment.getDoctor().getId())
-                .orElseThrow(() -> new RuntimeException("Doctor not found"));
-
-        appointment.setPatient(patient);
-        appointment.setDoctor(doctor);
-
-        appointmentService.saveAppointment(appointment);
+    @PostMapping("/add")
+    public String addAppointment(@RequestParam Long patientId,
+                                 @RequestParam Long doctorId,
+                                 @RequestParam String reason,
+                                 @RequestParam String status,
+                                 @RequestParam String dateTime) {
+        service.save(patientId, doctorId, reason, status, dateTime);
         return "redirect:/appointments";
     }
 
-
-    public void showDashboard(Long patientId) {
-        Long upcomingCount = appointmentService.countUpcomingForPatient(patientId);
-        System.out.println("Upcoming appointments: " + upcomingCount);
+    // Show Edit Appointment form
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model) {
+        Appointment appointment = service.getById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Appointment ID"));
+        model.addAttribute("appointment", appointment);
+        model.addAttribute("patients", patientRepository.findAll());
+        model.addAttribute("doctors", doctorRepository);
+        return "edit-appointment"; // Create this template
     }
-    // --- Update appointment ---
-    @PostMapping("/appointments/update")
-    public String updateAppointment(@ModelAttribute Appointment appointment) {
-        Appointment existing = appointmentService.getAppointmentById(appointment.getId())
-                .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
-        existing.setTreatment(appointment.getTreatment());
-        existing.setStatus(appointment.getStatus());
-        existing.setDateTime(appointment.getDateTime());
-
-        Patient patient = patientService.findById(appointment.getPatient().getId())
-                .orElseThrow(() -> new RuntimeException("Patient not found"));
-        Doctor doctor = doctorService.getDoctorById(appointment.getDoctor().getId())
-                .orElseThrow(() -> new RuntimeException("Doctor not found"));
-
-        existing.setPatient(patient);
-        existing.setDoctor(doctor);
-
-        appointmentService.saveAppointment(existing);
+    @PostMapping("/edit/{id}")
+    public String updateAppointment(@PathVariable Long id,
+                                    @RequestParam Long patientId,
+                                    @RequestParam Long doctorId,
+                                    @RequestParam String reason,
+                                    @RequestParam String status,
+                                    @RequestParam String dateTime) {
+        service.update(id, patientId, doctorId, reason, status, dateTime);
         return "redirect:/appointments";
     }
 
-
-    @GetMapping("/appointments/delete/{id}")
+    @GetMapping("/delete/{id}")
     public String deleteAppointment(@PathVariable Long id) {
-        appointmentService.deleteAppointment(id);
+        service.delete(id);
         return "redirect:/appointments";
     }
 }
+

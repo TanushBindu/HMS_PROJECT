@@ -30,13 +30,14 @@ public class DashboardController {
         if(role.equals("ADMIN") || role.equals("DOCTOR")) {
             model.addAttribute("totalPatients", patientService.countAll());
             model.addAttribute("totalDoctors", doctorService.getAllDoctors().size());
-            model.addAttribute("todayAppointments", appointmentService.getTodayAppointmentsCount());
+            model.addAttribute("todayAppointments", appointmentService.getAll());
             model.addAttribute("pendingInvoices", 5); // example
         }
         if(role.equals("PATIENT")) {
             Optional<Patient> patient = patientService.findByUsername(principal.getName());
             model.addAttribute("patientName", patient.get().getName());
-            model.addAttribute("upcomingAppointments", appointmentService.countUpcomingForPatient(patient.get().getId()));
+            model.addAttribute("totalAppointments", appointmentService.totalAppointments());
+            model.addAttribute("todaysAppointments", appointmentService.todaysAppointments());
         }
 
         return "dashboard";

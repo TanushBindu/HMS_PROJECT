@@ -7,6 +7,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
@@ -94,14 +95,14 @@ public class DataInitializer implements CommandLineRunner {
             Appointment appt1 = new Appointment();
             appt1.setDoctor(drSmith);
             appt1.setPatient(john);
-            appt1.setDateTime(LocalDateTime.now().plusDays(1));
-            appt1.setStatus("Scheduled");
+            appt1.setAppointmentDate(LocalDate.from(LocalDateTime.now().plusDays(1)).atStartOfDay());
+            appt1.setStatus(Appointment.Status.valueOf("SCHEDULED"));
 
             Appointment appt2 = new Appointment();
             appt2.setDoctor(drSmith);
             appt2.setPatient(john);
-            appt2.setDateTime(LocalDateTime.now().minusDays(2));
-            appt2.setStatus("Completed");
+            appt2.setAppointmentDate(LocalDate.from(LocalDateTime.now().minusDays(2)).atStartOfDay());
+            appt2.setStatus(Appointment.Status.valueOf("COMPLETED"));
 
             appointmentRepository.saveAll(Arrays.asList(appt1, appt2));
         }

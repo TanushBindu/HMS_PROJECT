@@ -1,7 +1,12 @@
 package com.hms.service;
 
 import com.hms.model.Appointment;
+import com.hms.model.Doctor;
+import com.hms.model.Patient;
 import com.hms.repository.AppointmentRepository;
+import com.hms.repository.DoctorRepository;
+import com.hms.repository.PatientRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -13,40 +18,64 @@ import java.util.Optional;
 @Service
 public class AppointmentService {
 
-    private final AppointmentRepository appointmentRepository;
+    @Autowired
+    private AppointmentRepository appointmentRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository) {
-        this.appointmentRepository = appointmentRepository;
-    }
+    @Autowired
+    private PatientRepository patientRepository;
 
-    public Long countTodayAppointments() {
-        LocalDate today = LocalDate.now();
-        LocalDateTime startOfDay = today.atStartOfDay();
-        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
-        return appointmentRepository.getTodayAppointmentsCount(startOfDay, endOfDay);
-    }
+    @Autowired
+    private DoctorRepository doctorRepository;
 
-    public long getTodayAppointmentsCount() {
-        return appointmentRepository.countTodayAppointments();
-    }
-
-    public List<Appointment> getAllAppointments() {
+    public List<Appointment> getAll() {
         return appointmentRepository.findAll();
     }
 
-    public Optional<Appointment> getAppointmentById(Long id) {
+    public Optional<Appointment> getById(Long id) {
         return appointmentRepository.findById(id);
     }
 
-    public Appointment saveAppointment(Appointment appointment) {
-        return appointmentRepository.save(appointment);
+    public Appointment save(Long patientId, Long doctorId, String reason, String status, String dateTimeStr) {
+        Appointment a = new Appointment();
+        a.setPatient(patientRepository.findById(patientId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Patient")));
+        a.setDoctor(doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Doctor")));
+        a.setReason(reason);
+        a.setStatus(Appointment.Status.fromString(status));
+        a.setAppointmentDate(LocalDateTime.parse(dateTimeStr));
+        return appointmentRepository.save(a);
     }
 
-    public void deleteAppointment(Long id) {
+    public Appointment update(Long id, Long patientId, Long doctorId, String reason, String status, String dateTimeStr) {
+        Appointment a = appointmentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Appointment ID"));
+        a.setPatient(patientRepository.findById(patientId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Patient")));
+        a.setDoctor(doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Doctor")));
+        a.setReason(reason);
+        a.setStatus(Appointment.Status.fromString(status));
+        a.setAppointmentDate(LocalDateTime.parse(dateTimeStr));
+        return appointmentRepository.save(a);
+    }
+
+    public void delete(Long id) {
         appointmentRepository.deleteById(id);
     }
-    public Long countUpcomingForPatient(Long patientId) {
-        return appointmentRepository.countUpcomingForPatient(patientId, LocalDateTime.now());
+
+    public long totalAppointments() {
+        return appointmentRepository.count();
+    }
+
+    public long todaysAppointments() {
+        LocalDateTime start = LocalDate.now().atStartOfDay();
+        LocalDateTime end = LocalDate.now().atTime(LocalTime.MAX);
+        return appointmentRepository.countByAppointmentDateBetween(start, end);
+    }
+
+    public List<Appointment> search(String keyword) {
+        return appointmentRepository.search(keyword);
     }
 }
 

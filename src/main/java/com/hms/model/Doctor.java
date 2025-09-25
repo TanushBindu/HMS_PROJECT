@@ -1,13 +1,8 @@
 package com.hms.model;
 
-import com.hms.model.Appointment;
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
-@Table(name = "doctors")
 public class Doctor {
 
     @Id
@@ -15,17 +10,15 @@ public class Doctor {
     private Long id;
 
     private String name;
-
-    private String specialization; // replaces department
+    private String specialization;
     private String contact;
+    private String username;
+    private String password;
 
-    private String about;          // optional description
-    private Boolean availableToday; // optional availability flag
+    private boolean availableToday;
+    private boolean onLeave;
 
-    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
-    private List<Appointment> appointments = new ArrayList<>();
-
-    // Getters and Setters for all fields
+    // Getters & Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -38,12 +31,15 @@ public class Doctor {
     public String getContact() { return contact; }
     public void setContact(String contact) { this.contact = contact; }
 
-    public String getAbout() { return about; }
-    public void setAbout(String about) { this.about = about; }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
 
-    public Boolean getAvailableToday() { return availableToday; }
-    public void setAvailableToday(Boolean availableToday) { this.availableToday = availableToday; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public List<Appointment> getAppointments() { return appointments; }
-    public void setAppointments(List<Appointment> appointments) { this.appointments = appointments; }
+    public boolean isAvailableToday() { return availableToday; }
+    public void setAvailableToday(boolean availableToday) { this.availableToday = availableToday; }
+
+    public boolean isOnLeave() { return onLeave; }
+    public void setOnLeave(boolean onLeave) { this.onLeave = onLeave; }
 }

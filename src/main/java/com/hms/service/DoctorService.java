@@ -9,37 +9,42 @@ import java.util.Optional;
 
 @Service
 public class DoctorService {
+
     private final DoctorRepository doctorRepository;
 
     public DoctorService(DoctorRepository doctorRepository) {
         this.doctorRepository = doctorRepository;
     }
 
-    public Optional<Doctor> getDoctorById(Long id) {
-        return doctorRepository.findById(id);
-    }
-
     public List<Doctor> getAllDoctors() {
         return doctorRepository.findAll();
+    }
+
+    public Optional<Doctor> getDoctorById(Long id) {
+        return doctorRepository.findById(id);
     }
 
     public Doctor saveDoctor(Doctor doctor) {
         return doctorRepository.save(doctor);
     }
 
-    public Doctor save(Doctor d) {
-        return doctorRepository.save(d);
-    }
-
-    public void deleteById(Long id) {
+    public void deleteDoctor(Long id) {
         doctorRepository.deleteById(id);
     }
 
-    public Doctor findById(Long id) {
-        return doctorRepository.findById(id).orElse(null);
+    public Long getTotalDoctors() {
+        return doctorRepository.countTotalDoctors();
     }
 
-    public List<Doctor> search(String name, String department, Boolean available) {
-        return doctorRepository.searchByKeyword(name != null ? name : "");
+    public Long getAvailableToday() {
+        return doctorRepository.countAvailableToday();
+    }
+
+    public Long getOnLeave() {
+        return doctorRepository.countOnLeave();
+    }
+
+    public List<Object[]> getDoctorsBySpecialization() {
+        return doctorRepository.countBySpecialization();
     }
 }
