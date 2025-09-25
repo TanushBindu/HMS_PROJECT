@@ -1,19 +1,19 @@
 package com.hms.dto;
 
-public class AccountsMonthlyIncome {
-    private String type;
+public class SpecialistMonthlyIncome {
+    private String specialization;
     private Double totalIncome;
     private Integer month;
 
-    public AccountsMonthlyIncome(String type, Double totalIncome, Integer month) {
-        this.type = type;
+    public SpecialistMonthlyIncome(String specialization, Double totalIncome, Integer month) {
+        this.specialization = specialization;
         this.totalIncome = totalIncome;
         this.month = month;
     }
 
     // Getters & Setters
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public String getSpecialization() { return specialization; }
+    public void setSpecialization(String specialization) { this.specialization = specialization; }
 
     public Double getTotalIncome() { return totalIncome; }
     public void setTotalIncome(Double totalIncome) { this.totalIncome = totalIncome; }

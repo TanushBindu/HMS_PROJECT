@@ -1,8 +1,9 @@
 package com.hms.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "invoice")
@@ -17,7 +18,8 @@ public class Invoice {
 
     private Double amount;
 
-    private LocalDate date;
+    @Temporal(TemporalType.DATE)
+    private Date date;
 
     private String status;
 
@@ -31,6 +33,7 @@ public class Invoice {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
 
     private boolean paid;
 
@@ -55,8 +58,8 @@ public class Invoice {
     public Double getAmount() { return amount; }
     public void setAmount(Double amount) { this.amount = amount; }
 
-    public LocalDate getDate() { return date; }
-    public void setDate(LocalDate date) { this.date = date; }
+    public Date getDate() { return date; }
+    public void setDate(Date date) { this.date = date; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

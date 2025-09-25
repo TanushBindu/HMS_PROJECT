@@ -1,48 +1,36 @@
 package com.hms.service;
 
 import com.hms.dto.AccountsMonthlyIncome;
-import com.hms.model.BiomedicalWasteIncome;
-import com.hms.repository.BiomedicalWasteIncomeRepository;
+import com.hms.dto.SpecialistMonthlyIncome;
 import com.hms.repository.InvoiceRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class AccountsService {
 
     private final InvoiceRepository invoiceRepository;
-    private final BiomedicalWasteIncomeRepository biomedicalRepo;
 
-    public AccountsService(InvoiceRepository invoiceRepository,
-                           BiomedicalWasteIncomeRepository biomedicalRepo) {
+    @Autowired
+    public AccountsService(InvoiceRepository invoiceRepository) {
         this.invoiceRepository = invoiceRepository;
-        this.biomedicalRepo = biomedicalRepo;
     }
 
-    public List<AccountsMonthlyIncome> getSpecialistIncome(int year) {
-        return invoiceRepository.getSpecialistMonthlyIncome(year);
-    }
-
-    public List<AccountsMonthlyIncome> getPatientTypeIncome(int year) {
+    public List<AccountsMonthlyIncome> getPatientTypeMonthlyIncome(int year) {
         return invoiceRepository.getPatientTypeMonthlyIncome(year);
     }
 
-    public List<BiomedicalWasteIncome> getBiomedicalIncome(LocalDate start, LocalDate end) {
-        return biomedicalRepo.findByDateBetween(start, end);
+    public List<SpecialistMonthlyIncome> getSpecialistMonthlyIncome(int year) {
+        return invoiceRepository.getSpecialistMonthlyIncome(year);
     }
 
-    // Dummy methods for ROI/Budget/Revenue/Expenditure
-    public double getTotalRevenue(int year) {
-        return invoiceRepository.findAll().stream()
-                .filter(i -> i.getDate().getYear() == year)
-                .mapToDouble(i -> i.getAmount())
-                .sum();
+    public Double getYearlyRevenue(int year) {
+        return invoiceRepository.getYearlyRevenue(year);
     }
 
-    public double getTotalExpenditure(int year) {
-        // Replace with actual expenditure logic
-        return 50000; // dummy
+    public Double getMonthlyRevenue(int month, int year) {
+        return invoiceRepository.getMonthlyRevenue(month, year);
     }
 }

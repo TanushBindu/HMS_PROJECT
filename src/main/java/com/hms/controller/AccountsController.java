@@ -1,48 +1,41 @@
 package com.hms.controller;
 
 import com.hms.dto.AccountsMonthlyIncome;
-import com.hms.model.BiomedicalWasteIncome;
+import com.hms.dto.SpecialistMonthlyIncome;
 import com.hms.service.AccountsService;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Controller
-@PreAuthorize("hasRole('ADMIN')")
+@RequestMapping("/accounts")
 public class AccountsController {
 
     private final AccountsService accountsService;
 
+    @Autowired
     public AccountsController(AccountsService accountsService) {
         this.accountsService = accountsService;
     }
 
-    @GetMapping("/accounts")
-    public String accountsPage(Model model) {
-        int year = LocalDate.now().getYear();
+    @GetMapping
+    public String viewAccountsPage(@RequestParam(defaultValue = "2025") int year, Model model) {
+        List<AccountsMonthlyIncome> patientTypeIncome = accountsService.getPatientTypeMonthlyIncome(year);
+        List<SpecialistMonthlyIncome> specialistIncome = accountsService.getSpecialistMonthlyIncome(year);
 
-        List<AccountsMonthlyIncome> specialistIncome = accountsService.getSpecialistIncome(year);
-        List<AccountsMonthlyIncome> patientIncome = accountsService.getPatientTypeIncome(year);
-        List<BiomedicalWasteIncome> bioIncome = accountsService.getBiomedicalIncome(
-                LocalDate.of(year, 1, 1),
-                LocalDate.now()
-        );
+        Double yearlyRevenue = accountsService.getYearlyRevenue(year);
+        Double monthlyRevenue = accountsService.getMonthlyRevenue(LocalDate.now().getMonthValue(), year);
 
-        double totalRevenue = accountsService.getTotalRevenue(year);
-        double totalExpenditure = accountsService.getTotalExpenditure(year);
-        double roi = totalRevenue - totalExpenditure;
-
+        model.addAttribute("patientTypeIncome", patientTypeIncome);
         model.addAttribute("specialistIncome", specialistIncome);
-        model.addAttribute("patientIncome", patientIncome);
-        model.addAttribute("bioIncome", bioIncome);
-        model.addAttribute("totalRevenue", totalRevenue);
-        model.addAttribute("totalExpenditure", totalExpenditure);
-        model.addAttribute("roi", roi);
-        model.addAttribute("year", year);
+        model.addAttribute("yearlyRevenue", yearlyRevenue);
+        model.addAttribute("monthlyRevenue", monthlyRevenue);
 
         return "accounts";
     }

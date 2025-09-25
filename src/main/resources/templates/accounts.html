@@ -2,93 +2,186 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Accounts Dashboard</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<div class="container mt-4">
-    <h2>Accounts Dashboard - [[${year}]]</h2>
+<div class="container-fluid mt-4">
+    <h2 class="text-center mb-4">Accounts & Finance Dashboard</h2>
 
-    <div class="row mt-4">
+    <!-- Row 1: Specialist Wise + Patient Type -->
+    <div class="row">
         <div class="col-md-6">
-            <h4>Specialist-wise Income</h4>
-            <table class="table table-striped">
-                <thead>
-                <tr><th>Specialization</th><th>Month</th><th>Income</th></tr>
-                </thead>
-                <tbody>
-                <tr th:each="inc : ${specialistIncome}">
-                    <td th:text="${inc.type}"></td>
-                    <td th:text="${inc.month}"></td>
-                    <td th:text="${inc.amount}"></td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-primary text-white">
+                    Specialist Wise Monthly Income
+                </div>
+                <div class="card-body">
+                    <canvas id="specialistIncomeChart"></canvas>
+                </div>
+            </div>
         </div>
-
         <div class="col-md-6">
-            <h4>Patient Type Income</h4>
-            <table class="table table-striped">
-                <thead>
-                <tr><th>Patient Type</th><th>Month</th><th>Income</th></tr>
-                </thead>
-                <tbody>
-                <tr th:each="inc : ${patientIncome}">
-                    <td th:text="${inc.type}"></td>
-                    <td th:text="${inc.month}"></td>
-                    <td th:text="${inc.amount}"></td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-success text-white">
+                    In-Patient vs OPD Monthly Income
+                </div>
+                <div class="card-body">
+                    <canvas id="patientTypeChart"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row mt-4">
+    <!-- Row 2: Bills, Invoices & Generate Invoice -->
+    <div class="row">
         <div class="col-md-12">
-            <h4>Biomedical Waste Income</h4>
-            <table class="table table-striped">
-                <thead>
-                <tr><th>Date</th><th>Description</th><th>Amount</th></tr>
-                </thead>
-                <tbody>
-                <tr th:each="b : ${bioIncome}">
-                    <td th:text="${b.date}"></td>
-                    <td th:text="${b.description}"></td>
-                    <td th:text="${b.amount}"></td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-dark text-white d-flex justify-content-between">
+                    <span>Bills & Invoices</span>
+                    <a th:href="@{/invoices/new}" class="btn btn-sm btn-warning">+ Generate Invoice</a>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Patient</th>
+                            <th>Doctor</th>
+                            <th>Treatment</th>
+                            <th>Amount</th>
+                            <th>Payment Mode</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="invoice : ${invoices}">
+                            <td th:text="${invoice.id}"></td>
+                            <td th:text="${invoice.patient.name}"></td>
+                            <td th:text="${invoice.doctor.name}"></td>
+                            <td th:text="${invoice.treatment}"></td>
+                            <td th:text="'₹ ' + ${invoice.amount}"></td>
+                            <td th:text="${invoice.paymentMode}"></td>
+                            <td th:text="${invoice.paid} ? 'Paid' : 'Unpaid'"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row mt-4">
+    <!-- Row 3: Biomedical Waste + ROI + Budget -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-info text-white">
+                    Biomedical Waste Management Income
+                </div>
+                <div class="card-body">
+                    <h4 class="text-success">₹ <span th:text="${biomedicalIncome}">0</span></h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-warning text-dark">
+                    ROI
+                </div>
+                <div class="card-body">
+                    <h4 class="text-primary"><span th:text="${roi}">0%</span></h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-danger text-white">
+                    Budget Utilization
+                </div>
+                <div class="card-body">
+                    <h4 class="text-danger">₹ <span th:text="${budget}">0</span></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 4: Expenditure + Revenue Graphs -->
+    <div class="row">
         <div class="col-md-6">
-            <h4>Revenue vs Expenditure</h4>
-            <canvas id="revenueChart"></canvas>
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-secondary text-white">
+                    Monthly & Yearly Expenditure
+                </div>
+                <div class="card-body">
+                    <canvas id="expenditureChart"></canvas>
+                </div>
+            </div>
         </div>
         <div class="col-md-6">
-            <h4>ROI</h4>
-            <div class="alert alert-success" th:text="${roi}"></div>
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-secondary text-white">
+                    Monthly & Yearly Revenue
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    const ctx = document.getElementById('revenueChart').getContext('2d');
-    const revenue = [[${totalRevenue}]];
-    const expenditure = [[${totalExpenditure}]];
-
-    new Chart(ctx, {
+    // Specialist Wise Income Chart
+    new Chart(document.getElementById('specialistIncomeChart'), {
         type: 'bar',
         data: {
-            labels: ['Revenue', 'Expenditure'],
+            labels: ['Cardiology', 'Neurology', 'Orthopedics'],
             datasets: [{
-                label: 'Amount',
-                data: [revenue, expenditure],
-                backgroundColor: ['#4caf50', '#f44336']
+                label: 'Income (₹)',
+                data: [120000, 90000, 75000],
+                backgroundColor: ['#007bff', '#28a745', '#ffc107']
             }]
-        },
-        options: { responsive: true, plugins: { legend: { display: false } } }
+        }
+    });
+
+    // Patient Type Chart
+    new Chart(document.getElementById('patientTypeChart'), {
+        type: 'pie',
+        data: {
+            labels: ['In-Patient', 'OPD'],
+            datasets: [{
+                data: [65000, 85000],
+                backgroundColor: ['#17a2b8', '#6f42c1']
+            }]
+        }
+    });
+
+    // Expenditure Chart
+    new Chart(document.getElementById('expenditureChart'), {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+            datasets: [{
+                label: 'Expenditure (₹)',
+                data: [50000, 60000, 45000, 70000, 55000],
+                borderColor: '#dc3545',
+                fill: false
+            }]
+        }
+    });
+
+    // Revenue Chart
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+            datasets: [{
+                label: 'Revenue (₹)',
+                data: [70000, 80000, 90000, 85000, 95000],
+                borderColor: '#28a745',
+                fill: false
+            }]
+        }
     });
 </script>
 </body>

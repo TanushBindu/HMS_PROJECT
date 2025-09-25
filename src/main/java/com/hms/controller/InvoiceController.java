@@ -44,6 +44,13 @@ public class InvoiceController {
         return "invoices"; // Thymeleaf template: invoices.html
     }
 
+    @GetMapping("/search")
+    public String searchInvoices(@RequestParam("keyword") String keyword, Model model) {
+        List<Invoice> invoices = invoiceService.searchInvoices(keyword);
+        model.addAttribute("invoices", invoices);
+        return "invoices";
+    }
+
     // Show form to create a new invoice
     @GetMapping("/add")
     public String showCreateForm(Model model) {

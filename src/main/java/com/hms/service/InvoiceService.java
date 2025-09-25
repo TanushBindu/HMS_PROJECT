@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,7 +51,7 @@ public class InvoiceService {
 
         invoice.setPatient(patient);
         invoice.setDoctor(doctor);
-        invoice.setDate(LocalDate.now());
+        invoice.setDate(Date.from(LocalDate.now().atStartOfDay().atZone(java.time.ZoneId.systemDefault()).toInstant()));
         invoice.setCustomerName(patient.getName()); // Auto populate
         return invoiceRepository.save(invoice);
     }
@@ -83,7 +84,10 @@ public class InvoiceService {
 
     // Search invoices by customer name, treatment, or doctor name
     public List<Invoice> searchInvoices(String keyword) {
-        return invoiceRepository.findByCustomerNameContainingIgnoreCaseOrTreatmentContainingIgnoreCase(keyword, keyword);
+        return invoiceRepository
+                .findByPatient_NameContainingIgnoreCaseOrDoctor_NameContainingIgnoreCaseOrTreatmentContainingIgnoreCase(
+                        keyword, keyword, keyword
+                );
     }
 
     // Generate PDF
