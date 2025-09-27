@@ -70,7 +70,7 @@
 
         <!-- Access Control / Staff (Admin only) -->
         <li th:if="${role == 'ADMIN'}"><a th:href="@{/access-control}"><i class="bi bi-shield-lock"></i> Access Control</a></li>
-        <li th:if="${role == 'ADMIN'}"><a th:href="@{/staff/create}"><i class="bi bi-person-plus"></i> Create/Edit Staff</a></li>
+        <li th:if="${role == 'ADMIN'}"><a th:href="@{/staff}"><i class="bi bi-person-plus"></i> Create/Edit Staff</a></li>
 
         <!-- Logout -->
         <li><a th:href="@{/logout}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>

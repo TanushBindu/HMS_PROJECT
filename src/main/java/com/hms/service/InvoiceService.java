@@ -15,9 +15,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
-import java.util.Date;
+import java.time.Month;
+import java.time.YearMonth;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class InvoiceService {
@@ -51,7 +52,7 @@ public class InvoiceService {
 
         invoice.setPatient(patient);
         invoice.setDoctor(doctor);
-        invoice.setDate(Date.from(LocalDate.now().atStartOfDay().atZone(java.time.ZoneId.systemDefault()).toInstant()));
+        invoice.setDate(LocalDate.now());
         invoice.setCustomerName(patient.getName()); // Auto populate
         return invoiceRepository.save(invoice);
     }
@@ -81,6 +82,12 @@ public class InvoiceService {
     public void deleteInvoice(Long id) {
         invoiceRepository.deleteById(id);
     }
+
+    // ✅ Save Invoice
+    public Invoice saveInvoice(Invoice invoice) {
+        return invoiceRepository.save(invoice);
+    }
+
 
     // Search invoices by customer name, treatment, or doctor name
     public List<Invoice> searchInvoices(String keyword) {

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Staff List</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h2>Staff List</h2>
+
+    <table class="table table-bordered table-striped mt-3">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Iterate over staff list -->
+        <tr th:each="staff : ${staffList}">
+            <td th:text="${staff.id}">1</td>
+            <td th:text="${staff.name}">John Doe</td>
+            <td th:text="${staff.role}">Admin</td>
+            <td>
+                <a th:href="@{/staff/edit/{id}(id=${staff.id})}" class="btn btn-sm btn-warning">Edit Role</a>
+                <a th:href="@{/access-control/{id}(id=${staff.id})}" class="btn btn-sm btn-info">Module Access</a>
+            </td>
+        </tr>
+
+        <!-- Show message if list is empty -->
+        <tr th:if="${staffList.size() == 0}">
+            <td colspan="4" class="text-center">No staff found.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

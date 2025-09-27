@@ -39,7 +39,7 @@
             <div class="card shadow-sm mb-3">
                 <div class="card-header bg-dark text-white d-flex justify-content-between">
                     <span>Bills & Invoices</span>
-                    <a href="/accounts/invoice/new" class="btn btn-success">Generate Invoice</a>
+                    <a th:href="@{/accounts/invoice/new}" class="btn btn-success">Generate Invoice</a>
                 </div>
                 <div class="card-body">
                     <table class="table table-bordered table-striped">
@@ -56,13 +56,13 @@
                         </thead>
                         <tbody>
                         <tr th:each="invoice : ${invoices}">
-                            <td th:text="${invoice.id}"></td>
-                            <td th:text="${invoice.patient.name}"></td>
-                            <td th:text="${invoice.doctor.name}"></td>
-                            <td th:text="${invoice.treatment}"></td>
-                            <td th:text="'₹ ' + ${invoice.amount}"></td>
-                            <td th:text="${invoice.paymentMode}"></td>
-                            <td th:text="${invoice.paid} ? 'Paid' : 'Unpaid'"></td>
+                            <td th:text="${invoice.id}">1</td>
+                            <td th:text="${invoice.patient != null ? invoice.patient.name : 'N/A'}">Patient</td>
+                            <td th:text="${invoice.doctor != null ? invoice.doctor.name : 'N/A'}">Doctor</td>
+                            <td th:text="${invoice.treatment}">Treatment</td>
+                            <td th:text="'₹ ' + ${invoice.amount}">₹0</td>
+                            <td th:text="${invoice.paymentMode}">CASH</td>
+                            <td th:text="${invoice.paid} ? 'Paid' : 'Unpaid'">Unpaid</td>
                         </tr>
                         </tbody>
                     </table>
@@ -79,7 +79,7 @@
                     Biomedical Waste Management Income
                 </div>
                 <div class="card-body">
-                    <h4 class="text-success">₹ <span th:text="${biomedicalIncome}">0</span></h4>
+                    <h4 class="text-success">₹ <span th:text="${biomedicalIncome != null ? biomedicalIncome : 0}">0</span></h4>
                 </div>
             </div>
         </div>
@@ -89,7 +89,7 @@
                     ROI
                 </div>
                 <div class="card-body">
-                    <h4 class="text-primary"><span th:text="${roi}">0%</span></h4>
+                    <h4 class="text-primary" th:text="${roi != null ? roi + '%' : '0%'}">0%</h4>
                 </div>
             </div>
         </div>
@@ -99,7 +99,7 @@
                     Budget Utilization
                 </div>
                 <div class="card-body">
-                    <h4 class="text-danger">₹ <span th:text="${budget}">0</span></h4>
+                    <h4 class="text-danger">₹ <span th:text="${budget != null ? budget : 0}">0</span></h4>
                 </div>
             </div>
         </div>
@@ -132,76 +132,66 @@
 
 <script th:inline="javascript">
     /*<![CDATA[*/
-
         // Specialist Wise Income Chart
-        const specialistLabels = /*[[${specialistIncome}]]*/ [];
-        const specialistData = /*[[${specialistIncome}]]*/ [];
-        const specialistNames = [];
-        const specialistAmounts = [];
-        /*[[#lists.foreach(specialistIncome, si) {]]*/
-            specialistNames.push(/*[[${si.specialist}]]*/);
-            specialistAmounts.push(/*[[${si.totalIncome}]]*/);
-        /*[[}]]*/
-
+        var specialistLabels = [[${specialistIncomeLabels}]];
+        var specialistData = [[${specialistIncomeValues}]];
         new Chart(document.getElementById('specialistIncomeChart'), {
             type: 'bar',
             data: {
-                labels: specialistNames,
+                labels: specialistLabels,
                 datasets: [{
                     label: 'Income (₹)',
-                    data: specialistAmounts,
-                    backgroundColor: ['#007bff', '#28a745', '#ffc107', '#17a2b8', '#6f42c1']
+                    data: specialistData,
+                    backgroundColor: ['#007bff', '#28a745', '#ffc107']
                 }]
             }
         });
 
         // Patient Type Chart
-        const patientLabels = [];
-        const patientAmounts = [];
-        /*[[#lists.foreach(patientTypeIncome, pt) {]]*/
-            patientLabels.push(/*[[${pt.patientType}]]*/);
-            patientAmounts.push(/*[[${pt.totalIncome}]]*/);
-        /*[[}]]*/
-
+        var patientLabels = [[${patientTypeLabels}]];
+        var patientData = [[${patientTypeValues}]];
         new Chart(document.getElementById('patientTypeChart'), {
             type: 'pie',
             data: {
                 labels: patientLabels,
                 datasets: [{
-                    data: patientAmounts,
+                    data: patientData,
                     backgroundColor: ['#17a2b8', '#6f42c1']
                 }]
             }
         });
 
-        // Expenditure Chart (dummy data - replace with service call if needed)
+        // Expenditure Chart
+        var expenditureLabels = [[${expenditureLabels}]];
+        var expenditureData = [[${expenditureValues}]];
         new Chart(document.getElementById('expenditureChart'), {
             type: 'line',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                labels: expenditureLabels,
                 datasets: [{
                     label: 'Expenditure (₹)',
-                    data: [50000, 60000, 45000, 70000, 55000],
+                    data: expenditureData,
                     borderColor: '#dc3545',
                     fill: false
                 }]
             }
         });
 
-        // Revenue Chart (dummy data - replace with service call if needed)
+        // Revenue Chart
+        var revenueLabels = [[${revenueLabels}]];
+        var revenueData = [[${revenueValues}]];
         new Chart(document.getElementById('revenueChart'), {
             type: 'line',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                labels: revenueLabels,
                 datasets: [{
                     label: 'Revenue (₹)',
-                    data: [70000, 80000, 90000, 85000, 95000],
+                    data: revenueData,
                     borderColor: '#28a745',
                     fill: false
                 }]
             }
         });
-
     /*]]>*/
 </script>
 </body>

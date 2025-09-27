@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Access Control</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h3>Manage Access Control</h3>
+    <form th:action="@{/staff/access-control/{id}(id=${ac.id})}" th:object="${ac}" method="post">
+        <div class="mb-3">
+            <label for="role" class="form-label">Role</label>
+            <input type="text" th:field="*{role}" class="form-control" id="role" placeholder="Enter Role" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="moduleName" class="form-label">Module Name</label>
+            <input type="text" th:field="*{moduleName}" class="form-control" id="moduleName" placeholder="Enter Module Name" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a th:href="@{/staff/list}" class="btn btn-secondary">Back</a>
+    </form>
+</div>
+</body>
+</html>

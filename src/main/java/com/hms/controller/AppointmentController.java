@@ -4,6 +4,7 @@ import com.hms.model.Appointment;
 import com.hms.model.Appointment.Status;
 import com.hms.repository.DoctorRepository;
 import com.hms.repository.PatientRepository;
+import com.hms.security.AccessControlUtil;
 import com.hms.service.AppointmentService;
 import com.hms.service.DoctorService;
 import com.hms.service.PatientService;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,6 +29,7 @@ public class AppointmentController {
 
     @Autowired
     private DoctorRepository doctorRepository;
+    private AccessControlUtil accessControlUtil;
 
     // Show all appointments
     @GetMapping
@@ -42,6 +45,16 @@ public class AppointmentController {
         return "appointments";
     }
 
+    @GetMapping("/appointments")
+    public String appointmentsDashboard(Model model, Principal principal) {
+        String username = principal.getName();
+        if (!accessControlUtil.hasAccess(username, "APPOINTMENTS")) {
+            return "error-403";
+        }
+        return "appointments-dashboard";
+    }
+
+    
     // Show Add Appointment form
     @GetMapping("/add")
     public String showAddForm(Model model) {

@@ -1,42 +1,36 @@
 package com.hms.controller;
 
-import com.hms.dto.AccountsMonthlyIncome;
-import com.hms.dto.SpecialistMonthlyIncome;
+import com.hms.security.AccessControlUtil;
 import com.hms.service.AccountsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDate;
-import java.util.List;
+import java.security.Principal;
 
 @Controller
-@RequestMapping("/accounts")
 public class AccountsController {
 
-    private final AccountsService accountsService;
+    @Autowired
+    private AccountsService accountsService;
 
     @Autowired
-    public AccountsController(AccountsService accountsService) {
-        this.accountsService = accountsService;
-    }
+    private AccessControlUtil accessControlUtil;
 
-    @GetMapping
-    public String viewAccountsPage(@RequestParam(defaultValue = "2025") int year, Model model) {
-        List<AccountsMonthlyIncome> patientTypeIncome = accountsService.getPatientTypeMonthlyIncome(year);
-        List<SpecialistMonthlyIncome> specialistIncome = accountsService.getSpecialistMonthlyIncome(year);
+    @GetMapping("/accounts")
+    public String accountsDashboard(Model model, Principal principal) {
+        String username = principal.getName();
 
-        Double yearlyRevenue = accountsService.getYearlyRevenue(year);
-        Double monthlyRevenue = accountsService.getMonthlyRevenue(LocalDate.now().getMonthValue(), year);
+        if (!accessControlUtil.hasAccess(username, "ACCOUNTS")) {
+            return "error-403"; // custom forbidden page
+        }
+        int currentYear = java.time.LocalDate.now().getYear();
 
-        model.addAttribute("patientTypeIncome", patientTypeIncome);
-        model.addAttribute("specialistIncome", specialistIncome);
-        model.addAttribute("yearlyRevenue", yearlyRevenue);
-        model.addAttribute("monthlyRevenue", monthlyRevenue);
+        model.addAttribute("patientTypeIncome", accountsService.getPatientTypeMonthlyIncome(currentYear));
+        model.addAttribute("specialistIncome", accountsService.getSpecialistMonthlyIncome(currentYear));
+        model.addAttribute("yearlyRevenue", accountsService.getYearlyRevenue(currentYear));
 
-        return "accounts";
+        return "accounts-dashboard"; // Thymeleaf HTML file
     }
 }

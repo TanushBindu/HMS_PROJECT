@@ -1,16 +1,20 @@
 package com.hms.controller;
 
 import com.hms.model.Doctor;
+import com.hms.security.AccessControlUtil;
 import com.hms.service.DoctorService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @Controller
 @RequestMapping("/doctors")
 public class DoctorController {
 
     private final DoctorService doctorService;
+    private AccessControlUtil accessControlUtil;
 
     public DoctorController(DoctorService doctorService) {
         this.doctorService = doctorService;
@@ -26,6 +30,15 @@ public class DoctorController {
         return "doctors";
     }
 
+    @GetMapping("/doctors")
+    public String doctorsDashboard(Model model, Principal principal) {
+        String username = principal.getName();
+        if (!accessControlUtil.hasAccess(username, "DOCTORS")) {
+            return "error-403";
+        }
+        return "doctors-dashboard";
+    }
+    
     @GetMapping("/add")
     public String showAddForm(Model model) {
         model.addAttribute("doctor", new Doctor());

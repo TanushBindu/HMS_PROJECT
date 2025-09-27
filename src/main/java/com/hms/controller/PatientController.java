@@ -1,6 +1,7 @@
 package com.hms.controller;
 
 import com.hms.model.Patient;
+import com.hms.security.AccessControlUtil;
 import com.hms.service.AppointmentService;
 import com.hms.service.PatientService;
 import com.hms.service.UserService;
@@ -20,6 +21,7 @@ import java.util.List;
 public class PatientController {
 
     private final PatientService patientService;
+    private AccessControlUtil accessControlUtil;
 
     public PatientController(PatientService patientService) {
         this.patientService = patientService;
@@ -33,6 +35,15 @@ public class PatientController {
         return "patients";
     }
 
+    @GetMapping("/patients")
+    public String patientsDashboard(Model model, Principal principal) {
+        String username = principal.getName();
+        if (!accessControlUtil.hasAccess(username, "PATIENTS")) {
+            return "error-403";
+        }
+        return "patients-dashboard";
+    }
+    
     // Show Add Patient form
     @GetMapping("/add")
     public String showAddForm(Model model) {

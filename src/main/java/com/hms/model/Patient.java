@@ -1,9 +1,6 @@
 package com.hms.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class Patient {
@@ -17,8 +14,11 @@ public class Patient {
     private int age;
     private String gender;
     private String password;
+    @Column(name = "type")
     private String type; // OPD / IN
     private String username;  // ✅ ensure this exists
+    // ✅ true = In-Patient, false = OPD
+    private boolean inPatient;
 
     // Getters and Setters
     public Long getId() {
@@ -41,13 +41,15 @@ public class Patient {
     public void setContact(String contact) {
         this.contact = contact;
     }
+    public boolean isInPatient() {
+        return inPatient;
+    }
 
-    public String getType() {
-        return type;
+    public void setInPatient(boolean inPatient) {
+        this.inPatient = inPatient;
     }
-    public void setType(String type) {
-        this.type = type;
-    }
+    public String getType() { return type; }
+    public void setType(String patientType) { this.type = type; }
 
     public String getPassword() {
         return password;

@@ -1,19 +1,18 @@
 package com.hms.dto;
 
 public class AccountsMonthlyIncome {
-    private String type;
+    private String patientType;
     private Double totalIncome;
     private Integer month;
 
-    public AccountsMonthlyIncome(String type, Double totalIncome, Integer month) {
-        this.type = type;
+    public AccountsMonthlyIncome(String patientType, Double totalIncome, Integer month) {
+        this.patientType = patientType;
         this.totalIncome = totalIncome;
         this.month = month;
     }
 
-    // Getters & Setters
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public String getPatientType() { return patientType; }
+    public void setPatientType(String patientType) { this.patientType = patientType; }
 
     public Double getTotalIncome() { return totalIncome; }
     public void setTotalIncome(Double totalIncome) { this.totalIncome = totalIncome; }

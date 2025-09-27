@@ -2,22 +2,26 @@ package com.hms.dto;
 
 public class SpecialistMonthlyIncome {
     private String specialization;
-    private Double totalIncome;
-    private Integer month;
+    private Double totalAmount;
 
-    public SpecialistMonthlyIncome(String specialization, Double totalIncome, Integer month) {
+    public SpecialistMonthlyIncome(String specialization, Double totalAmount) {
         this.specialization = specialization;
-        this.totalIncome = totalIncome;
-        this.month = month;
+        this.totalAmount = totalAmount;
     }
 
-    // Getters & Setters
-    public String getSpecialization() { return specialization; }
-    public void setSpecialization(String specialization) { this.specialization = specialization; }
+    public String getSpecialization() {
+        return specialization;
+    }
 
-    public Double getTotalIncome() { return totalIncome; }
-    public void setTotalIncome(Double totalIncome) { this.totalIncome = totalIncome; }
+    public void setSpecialization(String specialization) {
+        this.specialization = specialization;
+    }
 
-    public Integer getMonth() { return month; }
-    public void setMonth(Integer month) { this.month = month; }
+    public Double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(Double totalAmount) {
+        this.totalAmount = totalAmount;
+    }
 }

@@ -83,7 +83,7 @@ public class DataInitializer implements CommandLineRunner {
             jane.setAge(25);
             jane.setGender("Female");
             jane.setContact("1234567891");
-            jane.setType("InPatient");
+            jane.setType("INPATIENT");
 
             patientRepository.saveAll(Arrays.asList(john, jane));
         }

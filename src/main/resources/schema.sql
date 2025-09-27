@@ -97,3 +97,23 @@ CREATE TABLE biomedical_waste_income (
   date DATE NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+
+CREATE TABLE staff (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(20),
+    department VARCHAR(50),
+    gender VARCHAR(10),
+    role VARCHAR(20) NOT NULL,   -- ADMIN, USER, etc
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE access_control (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    module_name VARCHAR(100) NOT NULL,
+    can_access BOOLEAN DEFAULT FALSE,
+    staff_id BIGINT NOT NULL,
+    CONSTRAINT fk_staff FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE CASCADE
+);
