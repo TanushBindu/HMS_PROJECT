@@ -19,6 +19,14 @@ public class StaffService {
         return staffRepository.findAll();
     }
 
+    public List<Staff> findByRole(String role) {
+        return staffRepository.findByRole(role);
+    }
+
+    public java.util.Optional<Staff> findById(Long id) {
+        return staffRepository.findById(id);
+    }
+
     public Staff getStaffById(Long id) {
         return staffRepository.findById(id).orElse(null);
     }

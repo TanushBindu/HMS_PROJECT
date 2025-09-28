@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface StaffRepository extends JpaRepository<Staff, Long> {
     Staff findByUsername(String username);
-
+    List<Staff> findByRole(String role);
     List<Staff> findByNameContainingIgnoreCaseOrUsernameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrContactContainingIgnoreCaseOrRoleContainingIgnoreCase(
             String name, String username, String email, String contact, String role
     );

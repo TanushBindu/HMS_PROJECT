@@ -21,7 +21,8 @@ public class DashboardController {
     @Autowired private AppointmentService appointmentService;
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model, Principal principal) {
+    public String dashboard(Model model, Principal principal)
+    {
 //        String role = userService.getRole(principal.getName());
 //        model.addAttribute("role", role);
 //
