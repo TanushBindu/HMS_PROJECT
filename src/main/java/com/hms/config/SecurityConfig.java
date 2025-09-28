@@ -1,4 +1,5 @@
 package com.hms.config;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,23 +15,34 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
-                .requestMatchers("/admin/**","/doctors/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
-                .loginPage("/login")
-                .defaultSuccessUrl("/admin/dashboard", true)
-                .permitAll()
-            )
-            .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout")
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
-                .permitAll()
-            );
+                .authorizeHttpRequests(auth -> auth
+                        // Public resources
+                        .requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
+                        // Authenticated pages
+                        .requestMatchers(
+                                "/dashboard",
+                                "/patient",
+                                "/doctor",
+                                "/staff",
+                                "/appointment",
+                                "/invoice",
+                                "/report"
+                        ).authenticated()
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/dashboard", true)  // Single dashboard page
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
+                );
+
         return http.build();
     }
     @Bean

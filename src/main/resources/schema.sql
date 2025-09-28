@@ -42,3 +42,20 @@ CREATE TABLE staff (
     password VARCHAR(255),
     is_active BOOLEAN DEFAULT TRUE
 );
+
+
+CREATE TABLE invoice (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  patient_id BIGINT,
+  patient_name VARCHAR(255),
+  doctor_id BIGINT,
+  doctor_name VARCHAR(255),
+  treatment VARCHAR(500),
+  payment_method VARCHAR(20), -- CASH or CARD
+  status VARCHAR(20), -- PAID or PENDING
+  amount DECIMAL(12,2),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+

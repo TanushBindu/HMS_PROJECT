@@ -1,23 +1,38 @@
 package com.hms.controller;
 
 import com.hms.model.Doctor;
+import com.hms.service.AppointmentService;
 import com.hms.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
-@RequestMapping("/doctors")
+@RequestMapping("/doctor")
 public class DoctorController {
 
     @Autowired
     private DoctorService doctorService;
+    @Autowired
+    private AppointmentService appointmentService;
 
     @GetMapping
     public String listDoctors(Model model) {
         model.addAttribute("doctors", doctorService.getAllDoctors());
         return "doctors";
+    }
+
+    @GetMapping({"/dashboard"})
+    public String dashboard(Model model) {
+        int totalAppointments = appointmentService.getAllAppointments().size();
+        List<Doctor> availableDoctors = doctorService.getAllDoctors();
+
+        model.addAttribute("totalAppointments", totalAppointments);
+        model.addAttribute("availableDoctors", availableDoctors);
+        return "dashboard"; // maps to dashboard.html
     }
 
     @PostMapping("/edit/{id}")
