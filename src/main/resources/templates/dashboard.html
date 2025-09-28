@@ -1,0 +1,63 @@
+<div class="flex h-screen">
+    <!-- Sidebar -->
+    <div class="w-64 bg-blue-600 text-white p-4">
+        <h2 class="text-xl font-bold mb-6">Dashboard</h2>
+        <ul>
+            <li class="mb-2">
+                <a href="/appointments" class="block p-2 rounded hover:bg-blue-500">Appointments</a>
+            </li>
+            <li class="mb-2">
+                <a href="/staff" class="block p-2 rounded bg-blue-800">Staff</a>
+            </li>
+            <li class="mb-2">
+                <a href="/patients" class="block p-2 rounded hover:bg-blue-500">Patients</a>
+            </li>
+            <li class="mb-2">
+                <a href="/doctors" class="block p-2 rounded hover:bg-blue-500">Doctors</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 bg-gray-100 p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-semibold">Staff Management</h1>
+            <a href="/staff/create" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500">+ Add Staff</a>
+        </div>
+
+        <!-- Staff Table -->
+        <div class="bg-white shadow rounded-lg p-4">
+            <table class="min-w-full table-auto">
+                <thead>
+                <tr class="bg-gray-100 text-left">
+                    <th class="px-4 py-2">ID</th>
+                    <th class="px-4 py-2">Name</th>
+                    <th class="px-4 py-2">Username</th>
+                    <th class="px-4 py-2">Role</th>
+                    <th class="px-4 py-2">Contact</th>
+                    <th class="px-4 py-2">Status</th>
+                    <th class="px-4 py-2">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Example Row -->
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="px-4 py-2">1</td>
+                    <td class="px-4 py-2">Dr. John</td>
+                    <td class="px-4 py-2">drjohn</td>
+                    <td class="px-4 py-2">Doctor</td>
+                    <td class="px-4 py-2">1234567890</td>
+                    <td class="px-4 py-2">
+                        <span class="text-green-600 font-semibold">Active</span>
+                    </td>
+                    <td class="px-4 py-2">
+                        <a href="/staff/edit/1" class="text-blue-600 hover:underline mr-2">Edit</a>
+                        <a href="/staff/delete/1" class="text-red-600 hover:underline">Delete</a>
+                    </td>
+                </tr>
+                <!-- Add more rows dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
