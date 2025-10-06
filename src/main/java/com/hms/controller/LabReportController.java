@@ -37,7 +37,7 @@ public class LabReportController {
         List<LabReport> reports = labReportService.getAllReports();
         model.addAttribute("reports", reports);
         model.addAttribute("patients", patientService.getAllPatients());
-        model.addAttribute("doctors", doctorService.getAllDoctors());
+        model.addAttribute("doctors", doctorService.findAll());
         model.addAttribute("appointments", appointmentService.getAllAppointments());
         model.addAttribute("newReport", new LabReport());
         return "report/list"; // Thymeleaf HTML page

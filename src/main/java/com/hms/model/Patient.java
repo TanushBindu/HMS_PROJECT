@@ -18,6 +18,24 @@ public class Patient {
     private String phone;
     private String address;
     private String type; // OPD / In-Patient
+    private boolean isActive;
+    // Constructor
+    public boolean isActive() {
+        return isActive;
+    }
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+
+    public Patient(Long id, String name, int age, String gender, String phone, boolean isActive) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+        this.gender = gender;
+        this.phone = phone;
+        this.isActive = isActive;
+    }
 
     // Optional: OneToMany relationship with appointments
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL)

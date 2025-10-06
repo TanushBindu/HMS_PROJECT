@@ -19,15 +19,16 @@ public class PatientService {
         return patientRepository.findAll();
     }
 
-    // Get patient by ID
-    public Optional<Patient> getPatientById(Long id) {
-        return patientRepository.findById(id);
-    }
-
     // Save new patient
     public Patient savePatient(Patient patient) {
         return patientRepository.save(patient);
     }
+
+
+    public Optional<Patient> getPatientById(Long id) {
+        return patientRepository.findById(id);
+    }
+
 
     // Update existing patient
     public Patient updatePatient(Long id, Patient updatedPatient) {

@@ -3,21 +3,30 @@ USE hospital_db_final;
 
 DROP TABLE IF EXISTS appointments;
 DROP TABLE IF EXISTS patients;
-DROP TABLE IF EXISTS doctors;
+DROP TABLE IF EXISTS doctor;
+DROP TABLE IF EXISTS staff;
+DROP TABLE IF EXISTS invoice;
 
-CREATE TABLE doctors (
+CREATE TABLE doctor (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    department VARCHAR(100),
-    available_today BOOLEAN DEFAULT TRUE
+    specialization VARCHAR(100),
+    phone VARCHAR(15),
+    email VARCHAR(100),
+    address VARCHAR(255),
+    available_today BOOLEAN DEFAULT TRUE,
+    is_active TINYINT(1) NOT NULL DEFAULT 1
 );
 
 CREATE TABLE patients (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
+    age INT,
     gender VARCHAR(10),
-    phone VARCHAR(10),
-    type VARCHAR(20) -- OPD / INPATIENT
+    phone VARCHAR(15),
+    address VARCHAR(255),
+    type VARCHAR(20), -- OPD / In-Patient
+    is_active BOOLEAN DEFAULT TRUE
 );
 
 CREATE TABLE appointments (
@@ -27,7 +36,7 @@ CREATE TABLE appointments (
     reason VARCHAR(255),
     doctor_id BIGINT NOT NULL,
     patient_id BIGINT NOT NULL,
-    CONSTRAINT fk_doc FOREIGN KEY (doctor_id) REFERENCES doctors(id),
+    CONSTRAINT fk_doc FOREIGN KEY (doctor_id) REFERENCES doctor(id),
     CONSTRAINT fk_pat FOREIGN KEY (patient_id) REFERENCES patients(id)
 );
 
@@ -43,7 +52,6 @@ CREATE TABLE staff (
     is_active BOOLEAN DEFAULT TRUE
 );
 
-
 CREATE TABLE invoice (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   patient_id BIGINT,
@@ -56,6 +64,3 @@ CREATE TABLE invoice (
   amount DECIMAL(12,2),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-
-
