@@ -9,37 +9,42 @@ import java.util.Optional;
 
 @Service
 public class DoctorService {
+
     private final DoctorRepository doctorRepository;
+
+    public List<Doctor> getAllDoctors() {
+        return doctorRepository.findAll()
+                .stream()
+                .filter(Doctor::isActive) // soft delete filter
+                .toList();
+    }
 
     public DoctorService(DoctorRepository doctorRepository) {
         this.doctorRepository = doctorRepository;
+    }
+
+    public List<Doctor> findAll() {
+        return doctorRepository.findAll();
+    }
+
+    public Doctor save(Doctor doctor) {
+        return doctorRepository.save(doctor);
+    }
+
+    public Doctor findById(Long  id) {
+        return doctorRepository.findById(id).orElse(null);
     }
 
     public Optional<Doctor> getDoctorById(Long id) {
         return doctorRepository.findById(id);
     }
 
-    public List<Doctor> getAllDoctors() {
-        return doctorRepository.findAll();
-    }
-
-    public Doctor saveDoctor(Doctor doctor) {
-        return doctorRepository.save(doctor);
-    }
-
-    public Doctor save(Doctor d) {
-        return doctorRepository.save(d);
-    }
-
-    public void deleteById(Long id) {
+    public void deleteById(Long  id) {
         doctorRepository.deleteById(id);
     }
 
-    public Doctor findById(Long id) {
-        return doctorRepository.findById(id).orElse(null);
-    }
-
-    public List<Doctor> search(String name, String department, Boolean available) {
-        return doctorRepository.search(name, department, available);
+    // ✅ Add this for search
+    public List<Doctor> searchDoctors(String name, String specialization, Boolean available) {
+        return doctorRepository.searchDoctors(name, specialization, available);
     }
 }

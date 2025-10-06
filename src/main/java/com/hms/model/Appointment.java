@@ -1,6 +1,5 @@
 package com.hms.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -12,25 +11,35 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private LocalDateTime appointmentDate;
     private String reason;
     private String status;
 
-    @Column(nullable = false)
-    private LocalDateTime appointmentDate;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "patient_id")
-    @JsonIgnoreProperties("appointments") // prevent recursion
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "doctor_id")
-    @JsonIgnoreProperties("appointments") // prevent recursion
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
-    public Appointment() {}
+    // --- Transient Helper Getters for Thymeleaf ---
+    @Transient
+    public String getPatientName() {
+        return patient != null ? patient.getName() : "";
+    }
 
-    // Getters and setters
+    @Transient
+    public String getDoctorName() {
+        return doctor != null ? doctor.getName() : "";
+    }
+
+    @Transient
+    public String getDoctorSpecialization() {
+        return doctor != null ? doctor.getSpecialization() : "";
+    }
+
+    // --- Getters & Setters ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

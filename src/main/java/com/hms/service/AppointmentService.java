@@ -20,6 +20,9 @@ public class AppointmentService {
         return appointmentRepository.countTodayAppointments();
     }
 
+    public void deleteAppointmentById(Long id) {
+        appointmentRepository.deleteById(id);
+    }
     public List<Appointment> getAllAppointments() {
         return appointmentRepository.findAll();
     }

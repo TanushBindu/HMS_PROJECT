@@ -10,12 +10,13 @@ import java.util.List;
 
 @Repository
 public interface DoctorRepository extends JpaRepository<Doctor, Long> {
+    @Query("SELECT d FROM Doctor d " +
+            "WHERE (:name IS NULL OR LOWER(d.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
+            "AND (:specialization IS NULL OR LOWER(d.specialization) LIKE LOWER(CONCAT('%', :specialization, '%'))) " +
+            "AND (:available IS NULL OR d.availableToday = :available) " +
+            "AND d.isActive = true")
+    List<Doctor> searchDoctors(@Param("name") String name,
+                               @Param("specialization") String specialization,
+                               @Param("available") Boolean available);
 
-    @Query("SELECT d FROM Doctor d WHERE " +
-            "(:name IS NULL OR LOWER(d.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +
-            "(:department IS NULL OR LOWER(d.department) LIKE LOWER(CONCAT('%', :department, '%'))) AND " +
-            "(:available IS NULL OR d.availableToday = :available)")
-    List<Doctor> search(@Param("name") String name,
-                        @Param("department") String department,
-                        @Param("available") Boolean available);
 }

@@ -1,12 +1,10 @@
 package com.hms.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-
 import java.util.List;
 
 @Entity
-@Table(name = "doctors")
+@Table(name = "doctor")
 public class Doctor {
 
     @Id
@@ -14,16 +12,17 @@ public class Doctor {
     private Long id;
 
     private String name;
-    private String department;
+    private String specialization;
+    private String phone;
+    private String email;
+    private String address;
+    private boolean availableToday = true;
+    private boolean isActive = true;
 
-    private Boolean availableToday;  // ✅ boolean type
-
-    @Column(length = 2000)
-    private String about;
-
-    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("doctor")
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Appointment> appointments;
+
+    public Doctor() {}
 
     // --- Getters & Setters ---
     public Long getId() {
@@ -34,14 +33,6 @@ public class Doctor {
         this.id = id;
     }
 
-    public List<Appointment> getAppointments() {
-        return appointments;
-    }
-
-    public void setAppointments(List<Appointment> appointments) {
-        this.appointments = appointments;
-    }
-
     public String getName() {
         return name;
     }
@@ -50,31 +41,59 @@ public class Doctor {
         this.name = name;
     }
 
-    public String getDepartment() {
-        return department;
+    public String getSpecialization() {
+        return specialization;
     }
 
-    public void setDepartment(String department) {
-        this.department = department;
+    public void setSpecialization(String specialization) {
+        this.specialization = specialization;
     }
 
-    // ✅ Getter follows JavaBean convention
-    public Boolean getAvailableToday() {
-        return availableToday != null ? availableToday : false;
+    public String getPhone() {
+        return phone;
     }
 
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public boolean isAvailableToday() {
+        return availableToday;
+    }
 
     public void setAvailableToday(boolean availableToday) {
         this.availableToday = availableToday;
     }
 
-    public String getAbout() {
-        return about;
+    public boolean isActive() {
+        return isActive;
     }
 
-    public void setAbout(String about) {
-        this.about = about;
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
+    public List<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(List<Appointment> appointments) {
+        this.appointments = appointments;
+    }
 }
-

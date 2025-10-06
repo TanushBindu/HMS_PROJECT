@@ -13,9 +13,7 @@
             background: #fff;
             box-shadow: 0px 3px 10px rgba(0,0,0,0.1);
         }
-        .doctor-card:hover {
-            transform: scale(1.05);
-        }
+        .doctor-card:hover { transform: scale(1.05); }
         .doctor-avatar {
             width: 80px;
             height: 80px;
@@ -25,7 +23,6 @@
     </style>
 </head>
 <body class="bg-light">
-
 <div class="container py-4">
 
     <!-- Header -->
@@ -40,7 +37,7 @@
             <input type="text" name="name" placeholder="Search by name" class="form-control">
         </div>
         <div class="col-md-4">
-            <input type="text" name="department" placeholder="Search by department" class="form-control">
+            <input type="text" name="specialization" placeholder="Search by specialization" class="form-control">
         </div>
         <div class="col-md-4">
             <select name="available" class="form-select">
@@ -60,7 +57,7 @@
             <div class="doctor-card">
                 <img th:src="@{/images/doctor.png}" alt="Doctor" class="doctor-avatar mb-2">
                 <h5 th:text="${doctor.name}">Doctor Name</h5>
-                <p th:text="${doctor.department}">Specialization</p>
+                <p th:text="${doctor.specialization}">Specialization</p>
                 <p>
                     <span th:text="${doctor.availableToday} ? 'Available' : 'Not Available'"></span>
                 </p>
@@ -77,18 +74,45 @@
     <div th:each="doctor : ${doctors}"
          th:id="'doctorModal-' + ${doctor.id}"
          class="modal fade" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content p-3">
                 <div class="modal-header">
                     <h5 class="modal-title" th:text="${doctor.name}">Doctor Name</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
-                    <p><b>Department:</b> <span th:text="${doctor.department}"></span></p>
+                    <p><b>Specialization:</b> <span th:text="${doctor.specialization}"></span></p>
+                    <p><b>Phone:</b> <span th:text="${doctor.phone}"></span></p>
+                    <p><b>Email:</b> <span th:text="${doctor.email}"></span></p>
+                    <p><b>Address:</b> <span th:text="${doctor.address}"></span></p>
                     <p><b>Available Today:</b>
-                        <span th:text="${doctor.availableToday} ? 'Yes' : 'No'"></span></p>
-                    <p><b>About:</b> <span th:text="${doctor.about}">Doctor bio goes here</span></p>
+                        <span th:text="${doctor.availableToday} ? 'Yes' : 'No'"></span>
+                    </p>
+
+                    <h6 class="mt-3 mb-2">Appointments:</h6>
+                    <table class="table table-bordered table-sm">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Patient Name</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="appointment : ${doctor.appointments}">
+                            <td th:text="${appointment.id}"></td>
+                            <td th:text="${appointment.patientName}"></td>
+                            <td th:text="${appointment.reason}"></td>
+                            <td th:text="${appointment.status}"></td>
+                            <td th:text="${#temporals.format(appointment.appointmentDate, 'dd-MM-yyyy HH:mm')}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
+
                 <div class="modal-footer">
                     <a th:href="@{'/doctors/edit/' + ${doctor.id}}" class="btn btn-warning">Edit</a>
                     <a th:href="@{'/doctors/delete/' + ${doctor.id}}"
@@ -113,10 +137,16 @@
                             <input type="text" name="name" class="form-control" placeholder="Name" required>
                         </div>
                         <div class="mb-3">
-                            <input type="text" name="department" class="form-control" placeholder="Department" required>
+                            <input type="text" name="specialization" class="form-control" placeholder="Specialization" required>
                         </div>
                         <div class="mb-3">
-                            <textarea name="about" class="form-control" placeholder="About doctor"></textarea>
+                            <input type="text" name="phone" class="form-control" placeholder="Phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="email" name="email" class="form-control" placeholder="Email">
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" name="address" class="form-control" placeholder="Address">
                         </div>
                         <div class="mb-3">
                             <select name="availableToday" class="form-select">
@@ -135,7 +165,6 @@
     </div>
 
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
