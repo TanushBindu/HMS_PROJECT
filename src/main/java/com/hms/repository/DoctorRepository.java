@@ -19,4 +19,5 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
                                @Param("specialization") String specialization,
                                @Param("available") Boolean available);
 
+    List<Doctor> findByIsActiveTrue();
 }

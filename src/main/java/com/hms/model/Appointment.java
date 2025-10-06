@@ -30,6 +30,18 @@ public class Appointment {
     }
 
     @Transient
+    private String patientName;
+
+    public String getpatientName() { return patientName; }
+
+    @PostLoad
+    public void fillPatientName() {
+        if (this.patientName != null) {
+            this.patientName = this.patient.getName();
+        }
+    }
+
+    @Transient
     public String getDoctorName() {
         return doctor != null ? doctor.getName() : "";
     }
