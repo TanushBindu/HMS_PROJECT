@@ -11,31 +11,20 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "patient_id")
     private Long patientId;
-
-    @Column(name = "doctor_id")
     private Long doctorId;
-
-    @Column(name = "patient_name")
     private String patientName;
-
-    @Column(name = "doctor_name")
     private String doctorName;
-
     private String treatment;
     private Double amount;
-
-    @Column(name = "payment_method")
-    private String paymentMode;  // CASH or CARD
-
-    private String status;       // PAID or PENDING
+    private String paymentMode;
+    private String status;
 
     @Column(name = "created_at")
-    private LocalDateTime date;  // 🟢 maps to DB column created_at
+    private LocalDateTime date;
 
     public Invoice() {
-        this.date = LocalDateTime.now(); // Auto-set when created
+        this.date = LocalDateTime.now();
     }
 
     // Getters & Setters
