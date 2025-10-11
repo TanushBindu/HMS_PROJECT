@@ -56,7 +56,8 @@
 <div class="modal fade" id="appointmentModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form th:object="${appointment}" method="post" id="appointmentForm">
+            <form id="appointmentForm" th:action="@{/appointments/save}" method="post" th:object="${appointment}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <input type="hidden" th:field="*{id}" id="modalId"/>
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalTitle">Add Appointment</h5>

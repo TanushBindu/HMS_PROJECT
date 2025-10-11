@@ -53,24 +53,17 @@ public class AppointmentController {
     @GetMapping("/{id}")
     @ResponseBody
     public Appointment getAppointment(@PathVariable Long id) {
-        Optional<Appointment> optional = appointmentService.getAppointmentById(id);
-        if (optional.isEmpty()) {
-            throw new RuntimeException("Appointment not found");
-        }
-
-        Appointment appt = optional.get();
-
-        // Ensure patient and doctor are loaded (if using LAZY fetch)
-        appt.getPatient().getId();
-        appt.getDoctor().getId();
-
+        Appointment appt = appointmentService.getAppointmentById(id)
+                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+        // ensure lazy associations initialized
+        if (appt.getPatient() != null) appt.getPatient().getId();
+        if (appt.getDoctor() != null) appt.getDoctor().getId();
         return appt;
     }
 
     // --- Save new appointment ---
     @PostMapping("/save")
     public String saveAppointment(@ModelAttribute Appointment appointment) {
-        // fetch patient and doctor
         Patient patient = patientService.getPatientById(appointment.getPatient().getId())
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
         Doctor doctor = doctorService.getDoctorById(appointment.getDoctor().getId())
@@ -80,8 +73,6 @@ public class AppointmentController {
         appointment.setDoctor(doctor);
 
         appointmentService.saveAppointment(appointment);
-
-        // redirect back to appointments page
         return "redirect:/appointments";
     }
 
@@ -92,9 +83,9 @@ public class AppointmentController {
         Appointment existing = appointmentService.getAppointmentById(appointment.getId())
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
+        existing.setAppointmentDate(appointment.getAppointmentDate());
         existing.setReason(appointment.getReason());
         existing.setStatus(appointment.getStatus());
-        existing.setAppointmentDate(appointment.getAppointmentDate());
 
         Patient patient = patientService.getPatientById(appointment.getPatient().getId())
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
@@ -103,12 +94,10 @@ public class AppointmentController {
 
         existing.setPatient(patient);
         existing.setDoctor(doctor);
-
         appointmentService.saveAppointment(existing);
         return "redirect:/appointments";
     }
 
-    // --- Delete appointment ---
     @GetMapping("/delete/{id}")
     public String deleteAppointment(@PathVariable Long id) {
         appointmentService.deleteAppointment(id);
