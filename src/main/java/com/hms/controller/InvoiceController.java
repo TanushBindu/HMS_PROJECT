@@ -1,105 +1,116 @@
 package com.hms.controller;
 
 import com.hms.model.Invoice;
-import com.hms.model.Patient;
-import com.hms.model.Staff;
-import com.hms.service.InvoiceService;
-import com.hms.service.PatientService;
-import com.hms.service.StaffService;
+import com.hms.repository.InvoiceRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
+
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 
 @Controller
-@RequestMapping("/invoice")
 public class InvoiceController {
 
     @Autowired
-    private final InvoiceService invoiceService;
-    @Autowired
-    private final PatientService patientService;
-    @Autowired
-    private final StaffService staffService;
+    private InvoiceRepository invoiceRepository;
 
-    public InvoiceController(InvoiceService invoiceService,
-                             PatientService patientService,
-                             StaffService staffService) {
-        this.invoiceService = invoiceService;
-        this.patientService = patientService;
-        this.staffService = staffService;
-    }
-
-    @GetMapping("/list")
-    public String listInvoices(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
-        List<Invoice> invoices;
-        if (keyword != null && !keyword.isEmpty()) {
-            invoices = invoiceService.search(keyword);
-        } else {
-            invoices = invoiceService.findAll();
-        }
-
+    // 🟢 View all invoices
+    @GetMapping("/invoice")
+    public String getInvoices(Model model) {
+        List<Invoice> invoices = invoiceRepository.findAll();
         model.addAttribute("invoices", invoices);
-        model.addAttribute("patients", patientService.getAllPatients());
-        model.addAttribute("doctors", staffService.getAllStaff());
-        model.addAttribute("newInvoice", new Invoice());
         return "invoice";
     }
 
-    @PostMapping("/save")
-    public String saveInvoice(@ModelAttribute("newInvoice") Invoice invoice) {
-        Optional<Patient> patient = patientService.getPatientById(invoice.getPatientId());
-        if (patient != null) {
-            invoice.setPatientName(patient.get().getName());
+    // 🟢 Save new invoice (used by form submission)
+    @PostMapping("/invoice/save")
+    public String saveInvoice(Invoice invoice) {
+        if (invoice.getDate() == null) {
+            invoice.setDate(java.time.LocalDateTime.now());
+        }
+        invoiceRepository.save(invoice);
+        return "redirect:/invoice";
+    }
+
+    // 🟢 Download CSV
+    @GetMapping("/invoice/download/csv")
+    public void downloadCsv(HttpServletResponse response) throws IOException {
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=invoices.csv");
+
+        List<Invoice> invoices = invoiceRepository.findAll();
+        PrintWriter writer = response.getWriter();
+
+        writer.println("ID,Patient,Doctor,Treatment,Amount,Payment Mode,Status,Date");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        for (Invoice invoice : invoices) {
+            writer.println(String.format("%d,%s,%s,%s,%.2f,%s,%s,%s",
+                    invoice.getId(),
+                    invoice.getPatientName(),
+                    invoice.getDoctorName(),
+                    invoice.getTreatment(),
+                    invoice.getAmount(),
+                    invoice.getPaymentMode(),
+                    invoice.getStatus(),
+                    invoice.getDate() != null ? invoice.getDate().format(formatter) : ""));
         }
 
-        Optional<Staff> doctor = staffService.findById(invoice.getDoctorId());
-        if (doctor != null) {
-            invoice.setDoctorName(doctor.get().getName());
+        writer.flush();
+        writer.close();
+    }
+
+    // 🟢 Download PDF
+    @GetMapping("/invoice/download/pdf")
+    public void downloadPdf(HttpServletResponse response) throws IOException, DocumentException {
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=invoices.pdf");
+
+        List<Invoice> invoices = invoiceRepository.findAll();
+
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, response.getOutputStream());
+        document.open();
+
+        Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
+        Paragraph title = new Paragraph("Invoice Report", titleFont);
+        title.setAlignment(Element.ALIGN_CENTER);
+        title.setSpacingAfter(20);
+        document.add(title);
+
+        PdfPTable table = new PdfPTable(7);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(10f);
+
+        String[] headers = {"ID", "Patient", "Doctor", "Treatment", "Amount", "Payment Mode", "Status"};
+        for (String header : headers) {
+            PdfPCell cell = new PdfPCell(new Phrase(header));
+            cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
+            table.addCell(cell);
         }
 
-        invoiceService.save(invoice);
-        return "redirect:/invoice/list";
-    }
+        for (Invoice invoice : invoices) {
+            table.addCell(String.valueOf(invoice.getId()));
+            table.addCell(invoice.getPatientName());
+            table.addCell(invoice.getDoctorName());
+            table.addCell(invoice.getTreatment());
+            table.addCell(String.valueOf(invoice.getAmount()));
+            table.addCell(invoice.getPaymentMode());
+            table.addCell(invoice.getStatus());
+        }
 
-    @GetMapping
-    public String invoicePage(Model model) {
-        List<Invoice> invoices = invoiceService.findAll();
-        model.addAttribute("invoices", invoices);
-        return "invoice"; // maps to invoice.html
-    }
-
-    @GetMapping("/{id}")
-    @ResponseBody
-    public Invoice getInvoice(@PathVariable Long id) {
-        return invoiceService.findById(id).orElse(null);
-    }
-
-    @GetMapping("/delete/{id}")
-    public String deleteInvoice(@PathVariable Long id) {
-        invoiceService.deleteById(id);
-        return "redirect:/invoice/list";
-    }
-
-    // 🔹 PDF/Email/WhatsApp stubs (implement later)
-    @GetMapping("/generate-pdf/{id}")
-    @ResponseBody
-    public String generatePdf(@PathVariable Long id) {
-        return "PDF generated for invoice " + id;
-    }
-
-    @GetMapping("/send-email/{id}")
-    @ResponseBody
-    public String sendEmail(@PathVariable Long id) {
-        return "Email sent for invoice " + id;
-    }
-
-    @GetMapping("/send-whatsapp/{id}")
-    @ResponseBody
-    public String sendWhatsapp(@PathVariable Long id) {
-        return "WhatsApp message sent for invoice " + id;
+        document.add(table);
+        document.close();
     }
 }
