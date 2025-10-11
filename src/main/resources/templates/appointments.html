@@ -1,233 +1,3 @@
-<!--<!DOCTYPE html>-->
-<!--<html xmlns:th="http://www.thymeleaf.org">-->
-<!--<head>-->
-<!--    <meta charset="UTF-8">-->
-<!--    <title>Appointments</title>-->
-<!--    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">-->
-<!--    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
-<!--    <style>-->
-<!--        body {-->
-<!--            background-color: #f7f9fc;-->
-<!--            font-family: 'Segoe UI', sans-serif;-->
-<!--        }-->
-<!--        .sidebar {-->
-<!--            background-color: #0d6efd;-->
-<!--            min-height: 100vh;-->
-<!--            color: #fff;-->
-<!--            padding: 20px 15px;-->
-<!--        }-->
-<!--        .sidebar h4 {-->
-<!--            margin-bottom: 20px;-->
-<!--            font-weight: bold;-->
-<!--        }-->
-<!--        .sidebar a {-->
-<!--            color: #fff;-->
-<!--            text-decoration: none;-->
-<!--            display: block;-->
-<!--            padding: 10px;-->
-<!--            border-radius: 6px;-->
-<!--            margin-bottom: 8px;-->
-<!--        }-->
-<!--        .sidebar a:hover, .sidebar a.active {-->
-<!--            background-color: #084298;-->
-<!--        }-->
-<!--        .main-content {-->
-<!--            padding: 30px;-->
-<!--        }-->
-<!--        .card-appointment {-->
-<!--            display: flex;-->
-<!--            flex-direction: column;-->
-<!--            background: #fff;-->
-<!--            padding: 20px;-->
-<!--            border-radius: 12px;-->
-<!--            box-shadow: 0 2px 5px rgba(0,0,0,0.08);-->
-<!--            height: 100%;-->
-<!--        }-->
-<!--        .appointment-header {-->
-<!--            display: flex;-->
-<!--            flex-direction: column;-->
-<!--            justify-content: space-between;-->
-<!--            height: 100%;-->
-<!--        }-->
-<!--        .appointment-info p {-->
-<!--            margin: 2px 0;-->
-<!--        }-->
-<!--        .btn-edit {-->
-<!--            background-color: #6c757d;-->
-<!--            color: #fff;-->
-<!--        }-->
-<!--        .btn-delete {-->
-<!--            background-color: #dc3545;-->
-<!--            color: #fff;-->
-<!--        }-->
-<!--        .btn-add {-->
-<!--            background-color: #0d6efd;-->
-<!--            color: #fff;-->
-<!--            font-weight: bold;-->
-<!--        }-->
-<!--        .top-bar {-->
-<!--            display: flex;-->
-<!--            justify-content: space-between;-->
-<!--            align-items: center;-->
-<!--            margin-bottom: 25px;-->
-<!--        }-->
-<!--    </style>-->
-<!--</head>-->
-<!--<body>-->
-<!--<div class="row g-0">-->
-<!--    &lt;!&ndash; Sidebar &ndash;&gt;-->
-<!--    <div class="col-md-2 sidebar">-->
-<!--        <h4>Appointments</h4>-->
-<!--        <a th:href="@{/appointments}" class="active">All Appointments</a>-->
-<!--        <a th:href="@{/appointments/today}">Today's Appointments</a>-->
-<!--    </div>-->
-
-<!--    &lt;!&ndash; Main content &ndash;&gt;-->
-<!--    <div class="col-md-10 main-content">-->
-<!--        <div class="top-bar">-->
-<!--            <h2>Appointments</h2>-->
-<!--            <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addModal">+ Add Appointment</button>-->
-<!--        </div>-->
-
-<!--        &lt;!&ndash; Stats & Chart &ndash;&gt;-->
-<!--        <div class="row mb-4">-->
-<!--            <div class="col-md-3">-->
-<!--                <div class="card p-3 text-center shadow-sm">-->
-<!--                    <h6>Total Appointments</h6>-->
-<!--                    <p class="fs-4 fw-bold" th:text="${appointments.size()}">0</p>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--            <div class="col-md-3">-->
-<!--                <div class="card p-3 text-center shadow-sm">-->
-<!--                    <h6>Today's Appointments</h6>-->
-<!--                    <p class="fs-4 fw-bold" th:text="${todayCount}">0</p>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--            <div class="col-md-6">-->
-<!--                <canvas id="appointmentsChart"></canvas>-->
-<!--            </div>-->
-<!--        </div>-->
-
-<!--        &lt;!&ndash; Appointment Cards &ndash;&gt;-->
-<!--        <div class="row g-3">-->
-<!--            <div th:each="a : ${appointments}" class="col-12 col-md-6 col-lg-4">-->
-<!--                <div class="card-appointment">-->
-<!--                    <div class="appointment-header">-->
-<!--                        <div class="appointment-info">-->
-<!--                            <p><strong>Patient:</strong> <span th:text="${a.patient.name}"></span></p>-->
-<!--                            <p><strong>Doctor:</strong> <span th:text="${a.doctor.name}"></span></p>-->
-<!--                            <p><strong>Date:</strong> <span th:text="${#temporals.format(a.appointmentDate, 'dd MMM yyyy HH:mm')}"></span></p>-->
-<!--                            <p><strong>Status:</strong> <span th:text="${a.status}"></span></p>-->
-<!--                            <p><strong>Reason:</strong> <span th:text="${a.reason}"></span></p>-->
-<!--                        </div>-->
-<!--                        <div class="mt-2">-->
-<!--                            <button class="btn btn-sm btn-edit me-2"-->
-<!--                                    th:attr="data-id=${a.id}"-->
-<!--                                    onclick="openEditModal(this)">Edit</button>-->
-<!--                            <a th:href="@{'/appointments/delete/' + ${a.id}}"-->
-<!--                               class="btn btn-sm btn-delete"-->
-<!--                               onclick="return confirm('Delete this appointment?')">Delete</a>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</div>-->
-
-<!--&lt;!&ndash; Add Appointment Modal &ndash;&gt;-->
-<!--<div class="modal fade" id="addModal" tabindex="-1">-->
-<!--    <div class="modal-dialog">-->
-<!--        <div class="modal-content">-->
-<!--            <form th:action="@{/appointments/save}" th:object="${appointment}" method="post">-->
-<!--                <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />-->
-
-<!--                &lt;!&ndash; Reason dropdown &ndash;&gt;-->
-<!--                <div class="mb-3">-->
-<!--                    <label>Reason</label>-->
-<!--                    <select th:field="*{reason}" class="form-control">-->
-<!--                        <option value="">Select reason</option>-->
-<!--                        <option value="Consultation">Consultation</option>-->
-<!--                        <option value="Follow-up">Follow-up</option>-->
-<!--                        <option value="Emergency">Emergency</option>-->
-<!--                        <option value="Checkup">Checkup</option>-->
-<!--                    </select>-->
-<!--                </div>-->
-
-<!--                &lt;!&ndash; Status dropdown &ndash;&gt;-->
-<!--                <div class="mb-3">-->
-<!--                    <label>Status</label>-->
-<!--                    <select th:field="*{status}" class="form-control">-->
-<!--                        <option value="Scheduled">Scheduled</option>-->
-<!--                        <option value="Completed">Completed</option>-->
-<!--                        <option value="Cancelled">Cancelled</option>-->
-<!--                        <option value="Rescheduled">Rescheduled</option>-->
-<!--                    </select>-->
-<!--                </div>-->
-
-<!--                <button type="submit" class="btn btn-success">Save</button>-->
-<!--            </form>-->
-
-<!--        </div>-->
-<!--    </div>-->
-<!--</div>-->
-
-<!--&lt;!&ndash; Edit Appointment Modal &ndash;&gt;-->
-<!--<div class="modal fade" id="editModal" tabindex="-1">-->
-<!--    <div class="modal-dialog">-->
-<!--        <div class="modal-content">-->
-<!--            <form th:action="@{/appointments/update}" method="post">-->
-<!--                <input type="hidden" id="editId" name="id"/>-->
-<!--                <div class="modal-header">-->
-<!--                    <h5 class="modal-title">Edit Appointment</h5>-->
-<!--                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>-->
-<!--                </div>-->
-<!--                <div class="modal-body">-->
-<!--                    <label class="form-label">Reason</label>-->
-<!--                    <select th:field="*{reason}">-->
-<!--                        <option th:each="reason : ${reasons}" th:value="${reason}" th:text="${reason}"></option>-->
-<!--                    </select>-->
-<!--                    <label class="form-label mt-2">Status</label>-->
-<!--                    <select th:field="*{status}">-->
-<!--                        <option th:each="status : ${statuses}" th:value="${status}" th:text="${status}"></option>-->
-<!--                    </select>-->
-<!--                </div>-->
-<!--                <div class="modal-footer">-->
-<!--                    <button type="submit" class="btn btn-primary">Update</button>-->
-<!--                </div>-->
-<!--            </form>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</div>-->
-
-<!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>-->
-<!--<script>-->
-<!--    function openEditModal(btn) {-->
-<!--        const id = btn.getAttribute("data-id");-->
-<!--        fetch(`/appointments/${id}`)-->
-<!--            .then(res => res.json())-->
-<!--            .then(appt => {-->
-<!--                document.getElementById("editId").value = appt.id;-->
-<!--                document.getElementById("editReason").value = appt.reason;-->
-<!--                document.getElementById("editStatus").value = appt.status;-->
-<!--                new bootstrap.Modal(document.getElementById("editModal")).show();-->
-<!--            });-->
-<!--    }-->
-
-<!--    new Chart(document.getElementById('appointmentsChart'), {-->
-<!--        type: 'bar',-->
-<!--        data: {-->
-<!--            labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],-->
-<!--            datasets: [{-->
-<!--                label: 'Appointments',-->
-<!--                data: [3,5,2,6,4,7,2],-->
-<!--                backgroundColor: 'rgba(54,162,235,0.7)'-->
-<!--            }]-->
-<!--        }-->
-<!--    });-->
-<!--</script>-->
-<!--</body>-->
-<!--</html>-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -235,119 +5,92 @@
     <title>Appointments</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { background-color: #f7f9fc; font-family: 'Segoe UI', sans-serif; }
-        .sidebar { background-color: #0d6efd; min-height: 100vh; color: #fff; padding: 20px 15px; }
-        .sidebar h4 { margin-bottom: 20px; font-weight: bold; }
-        .sidebar a { color: #fff; text-decoration: none; display: block; padding: 10px; border-radius: 6px; margin-bottom: 8px; }
-        .sidebar a:hover, .sidebar a.active { background-color: #084298; }
-        .main-content { padding: 30px; }
-        .card-appointment { display: flex; flex-direction: column; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); height: 100%; }
-        .appointment-info p { margin: 2px 0; }
-        .btn-edit { background-color: #6c757d; color: #fff; }
-        .btn-delete { background-color: #dc3545; color: #fff; }
-        .btn-add { background-color: #0d6efd; color: #fff; font-weight: bold; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-    </style>
 </head>
 <body>
-<div class="row g-0">
-    <div class="col-md-2 sidebar">
-        <h4>Appointments</h4>
-        <a th:href="@{/appointments}" class="active">All Appointments</a>
-        <a th:href="@{/appointments/today}">Today's Appointments</a>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Appointments</h2>
+        <button class="btn btn-primary" onclick="openAddModal()">+ Add Appointment</button>
     </div>
 
-    <div class="col-md-10 main-content">
-        <div class="top-bar">
-            <h2>Appointments</h2>
-            <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addModal">+ Add Appointment</button>
-        </div>
-
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card p-3 text-center shadow-sm">
-                    <h6>Total Appointments</h6>
-                    <p class="fs-4 fw-bold" th:text="${totalCount}">0</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card p-3 text-center shadow-sm">
-                    <h6>Today's Appointments</h6>
-                    <p class="fs-4 fw-bold" th:text="${todayCount}">0</p>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <canvas id="appointmentsChart"></canvas>
+    <!-- Counts -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center p-3">
+                <h6>Total Appointments</h6>
+                <p class="fs-4 fw-bold" th:text="${totalCount}">0</p>
             </div>
         </div>
+        <div class="col-md-3">
+            <div class="card text-center p-3">
+                <h6>Today's Appointments</h6>
+                <p class="fs-4 fw-bold" th:text="${todayCount}">0</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <canvas id="appointmentsChart"></canvas>
+        </div>
+    </div>
 
-        <!-- Appointment Cards -->
-        <div class="row g-3">
-            <div th:each="a : ${appointments}" class="col-12 col-md-6 col-lg-4">
-                <div class="card-appointment">
-                    <div class="appointment-info">
-                        <p><strong>Patient:</strong> <span th:text="${a.patient.name}"></span></p>
-                        <p><strong>Doctor:</strong> <span th:text="${a.doctor.name}"></span></p>
-                        <p><strong>Date:</strong> <span th:text="${#temporals.format(a.appointmentDate, 'dd MMM yyyy HH:mm')}"></span></p>
-                        <p><strong>Status:</strong> <span th:text="${a.status}"></span></p>
-                        <p><strong>Reason:</strong> <span th:text="${a.reason}"></span></p>
-                    </div>
-                    <div class="mt-2">
-                        <button class="btn btn-sm btn-edit me-2" th:attr="data-id=${a.id}" onclick="openEditModal(this)">Edit</button>
-                        <a th:href="@{'/appointments/delete/' + ${a.id}}" class="btn btn-sm btn-delete" onclick="return confirm('Delete this appointment?')">Delete</a>
-                    </div>
+    <!-- Appointment Cards -->
+    <div class="row">
+        <div class="col-md-4 mb-3" th:each="a : ${appointments}">
+            <div class="card">
+                <div class="card-body">
+                    <p><strong>Patient:</strong> <span th:text="${a.patientName}"></span></p>
+                    <p><strong>Doctor:</strong> <span th:text="${a.doctorName}"></span></p>
+                    <p><strong>Date:</strong> <span th:text="${#temporals.format(a.appointmentDate, 'yyyy-MM-dd HH:mm')}"></span></p>
+                    <p><strong>Reason:</strong> <span th:text="${a.reason}"></span></p>
+                    <p><strong>Status:</strong> <span th:text="${a.status}"></span></p>
+
+                    <button class="btn btn-sm btn-secondary" th:attr="data-id=${a.id}" onclick="openEditModal(this)">Edit</button>
+                    <a th:href="@{'/appointments/delete/' + ${a.id}}" class="btn btn-sm btn-danger"
+                       onclick="return confirm('Delete?')">Delete</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Add Appointment Modal -->
-<div class="modal fade" id="addModal" tabindex="-1">
+<!-- Modal -->
+<div class="modal fade" id="appointmentModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="appointmentForm" th:action="@{/appointments/save}" method="post">
-                <input type="hidden" name="id" th:value="${appointment.id}" />
-
+            <form th:object="${appointment}" method="post" id="appointmentForm">
+                <input type="hidden" th:field="*{id}" id="modalId"/>
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Appointment</h5>
+                    <h5 class="modal-title" id="modalTitle">Add Appointment</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-
                 <div class="modal-body">
                     <div class="mb-3">
                         <label>Patient</label>
-                        <select name="patient.id" class="form-control">
-                            <option th:each="patient : ${patients}" th:value="${patient.id}" th:text="${patient.name}"></option>
+                        <select th:field="*{patient.id}" id="modalPatient" class="form-control">
+                            <option th:each="p: ${patients}" th:value="${p.id}" th:text="${p.name}"></option>
                         </select>
                     </div>
-
                     <div class="mb-3">
                         <label>Doctor</label>
-                        <select name="doctor.id" class="form-control">
-                            <option th:each="doctor : ${doctors}" th:value="${doctor.id}" th:text="${doctor.name}"></option>
+                        <select th:field="*{doctor.id}" id="modalDoctor" class="form-control">
+                            <option th:each="d: ${doctors}" th:value="${d.id}" th:text="${d.name}"></option>
                         </select>
                     </div>
-
                     <div class="mb-3">
                         <label>Date & Time</label>
-                        <input type="datetime-local" th:field="*{appointmentDate}" class="form-control"/>
+                        <input type="datetime-local" th:field="*{appointmentDate}" id="modalDate" class="form-control"/>
                     </div>
-
                     <div class="mb-3">
                         <label>Reason</label>
-                        <select th:field="*{reason}" class="form-control">
+                        <select th:field="*{reason}" id="modalReason" class="form-control">
                             <option value="Consultation">Consultation</option>
                             <option value="Follow-up">Follow-up</option>
                             <option value="Emergency">Emergency</option>
                             <option value="Checkup">Checkup</option>
                         </select>
                     </div>
-
                     <div class="mb-3">
                         <label>Status</label>
-                        <select th:field="*{status}" class="form-control">
+                        <select th:field="*{status}" id="modalStatus" class="form-control">
                             <option value="Scheduled">Scheduled</option>
                             <option value="Completed">Completed</option>
                             <option value="Cancelled">Cancelled</option>
@@ -355,70 +98,8 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Save</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Edit Appointment Modal -->
-<div class="modal fade" id="editModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form th:action="@{/appointments/update}" th:object="${appointment}" method="post">
-                <input type="hidden" th:field="*{id}" id="editId"/>
-
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Appointment</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label>Patient</label>
-                        <select th:field="*{patient.id}" id="editPatient" class="form-control">
-                            <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.name}"></option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Doctor</label>
-                        <select th:field="*{doctor.id}" id="editDoctor" class="form-control">
-                            <option th:each="d : ${doctors}" th:value="${d.id}" th:text="${d.name}"></option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Date & Time</label>
-                        <input type="datetime-local" th:field="*{appointmentDate}" id="editDate" class="form-control"/>
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Reason</label>
-                        <select th:field="*{reason}" id="editReason" class="form-control">
-                            <option value="Consultation">Consultation</option>
-                            <option value="Follow-up">Follow-up</option>
-                            <option value="Emergency">Emergency</option>
-                            <option value="Checkup">Checkup</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Status</label>
-                        <select th:field="*{status}" id="editStatus" class="form-control">
-                            <option value="Scheduled">Scheduled</option>
-                            <option value="Completed">Completed</option>
-                            <option value="Cancelled">Cancelled</option>
-                            <option value="Rescheduled">Rescheduled</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Update</button>
+                    <button type="submit" class="btn btn-success" id="modalSaveBtn">Save</button>
                 </div>
             </form>
         </div>
@@ -427,41 +108,63 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    function openEditAppointment(id) {
-    fetch('/appointments/edit/' + id)
-        .then(response => response.text())
-        .then(html => {
-            document.querySelector('#appointmentModalContent').innerHTML = html;
-            $('#appointmentModal').modal('show');
-        });
-}
+    const modalEl = document.getElementById('appointmentModal');
+    const modal = new bootstrap.Modal(modalEl);
+    const form = document.getElementById('appointmentForm');
+    const modalTitle = document.getElementById('modalTitle');
 
-</script>
-<script>
+    function openAddModal() {
+        modalTitle.textContent = 'Add Appointment';
+        form.action = '/appointments/save';
+        form.reset();
+        document.getElementById('modalId').value = '';
+        modal.show();
+    }
+
     function openEditModal(btn) {
-        const id = btn.getAttribute("data-id");
+        const id = btn.getAttribute('data-id');
+        if (!id) return;
+
         fetch(`/appointments/${id}`)
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Appointment not found');
+                return res.json();
+            })
             .then(appt => {
-                document.getElementById("editId").value = appt.id;
-                document.getElementById("editReason").value = appt.reason;
-                document.getElementById("editStatus").value = appt.status;
-                document.getElementById("editDate").value = appt.appointmentDate.substring(0,16);
-                document.getElementById("editPatient").value = appt.patient.id;
-                document.getElementById("editDoctor").value = appt.doctor.id;
-                new bootstrap.Modal(document.getElementById("editModal")).show();
+                modalTitle.textContent = 'Edit Appointment';
+                form.action = '/appointments/update';
+
+                document.getElementById('modalId').value = appt.id;
+                document.getElementById('modalPatient').value = appt.patient.id;
+                document.getElementById('modalDoctor').value = appt.doctor.id;
+                document.getElementById('modalDate').value = appt.appointmentDate.substring(0,16);
+                document.getElementById('modalReason').value = appt.reason;
+                document.getElementById('modalStatus').value = appt.status;
+
+                modal.show();
+            })
+            .catch(err => {
+                console.error('Error opening edit modal:', err);
+                alert('Unable to load appointment data.');
             });
     }
 
-    new Chart(document.getElementById('appointmentsChart'), {
+    // --- Chart ---
+    const ctx = document.getElementById('appointmentsChart').getContext('2d');
+    const weeklyData = /*[[${weeklyCounts}]]*/ [0,0,0,0,0,0,0]; // fallback
+    new Chart(ctx, {
         type: 'bar',
         data: {
             labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
             datasets: [{
                 label: 'Appointments',
-                data: [3,5,2,6,4,7,2],
+                data: weeklyData,
                 backgroundColor: 'rgba(54,162,235,0.7)'
             }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } }
         }
     });
 </script>

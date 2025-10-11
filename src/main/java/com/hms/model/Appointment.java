@@ -23,22 +23,10 @@ public class Appointment {
     @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
-    // --- Transient Helper Getters for Thymeleaf ---
+    // --- Transient helper getters ---
     @Transient
     public String getPatientName() {
         return patient != null ? patient.getName() : "";
-    }
-
-    @Transient
-    private String patientName;
-
-    public String getpatientName() { return patientName; }
-
-    @PostLoad
-    public void fillPatientName() {
-        if (this.patientName != null) {
-            this.patientName = this.patient.getName();
-        }
     }
 
     @Transient

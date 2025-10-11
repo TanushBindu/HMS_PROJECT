@@ -4,6 +4,8 @@ import com.hms.model.Appointment;
 import com.hms.repository.AppointmentRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,8 +18,30 @@ public class AppointmentService {
         this.appointmentRepository = appointmentRepository;
     }
 
-    public long getTodayAppointmentsCount() {
-        return appointmentRepository.countTodayAppointments();
+//    public long getTodayAppointmentsCount() {
+//        return appointmentRepository.countTodayAppointments();
+//    }
+
+    // --- Count today’s appointments ---
+    public int getTodayAppointmentsCount() {
+        LocalDate today = LocalDate.now();
+        return (int) appointmentRepository.findAll()
+                .stream()
+                .filter(a -> a.getAppointmentDate().toLocalDate().isEqual(today))
+                .count();
+    }
+
+    // --- Weekly counts (Mon-Sun) ---
+    public int[] getWeeklyAppointmentsCount() {
+        int[] counts = new int[7]; // Mon=0, Sun=6
+        LocalDate now = LocalDate.now();
+
+        appointmentRepository.findAll().forEach(a -> {
+            DayOfWeek dow = a.getAppointmentDate().getDayOfWeek();
+            counts[dow.getValue() - 1]++; // DayOfWeek.MONDAY=1
+        });
+
+        return counts;
     }
 
     public void deleteAppointmentById(Long id) {
