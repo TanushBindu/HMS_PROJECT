@@ -2,19 +2,18 @@ package com.hms.controller;
 
 import com.hms.model.Invoice;
 import com.hms.repository.InvoiceRepository;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
 
 @Controller
 @RequestMapping("/invoice")
@@ -23,36 +22,34 @@ public class InvoiceController {
     @Autowired
     private InvoiceRepository invoiceRepository;
 
+    // ✅ Main invoice page
     @GetMapping
     public String viewInvoices(Model model) {
         List<Invoice> invoices = invoiceRepository.findAll();
+
+        // ✅ Add both list and empty invoice object (for modal form)
         model.addAttribute("invoices", invoices);
+        model.addAttribute("invoice", new Invoice());
+
         return "invoice";
     }
 
-    @PostMapping("/generate")
-    public String generateInvoice(@ModelAttribute Invoice invoice) {
+    // ✅ Save new invoice from modal form
+    @PostMapping("/save")
+    public String saveInvoice(@ModelAttribute Invoice invoice) {
         invoiceRepository.save(invoice);
         return "redirect:/invoice";
     }
 
-    // ===== CSV Downloads =====
+    // ✅ Download all invoices as CSV
     @GetMapping("/download/csv")
     public void downloadCSV(HttpServletResponse response) throws IOException {
-        downloadCSVHelper(invoiceRepository.findAll(), response, "invoices.csv");
-    }
-
-    @GetMapping("/download/csv/{id}")
-    public void downloadCSVById(@PathVariable Long id, HttpServletResponse response) throws IOException {
-        Invoice invoice = invoiceRepository.findById(id).orElseThrow(() -> new RuntimeException("Invoice not found"));
-        downloadCSVHelper(List.of(invoice), response, "invoice_" + id + ".csv");
-    }
-
-    private void downloadCSVHelper(List<Invoice> invoices, HttpServletResponse response, String filename) throws IOException {
         response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=" + filename);
+        response.setHeader("Content-Disposition", "attachment; filename=invoices.csv");
 
+        List<Invoice> invoices = invoiceRepository.findAll();
         PrintWriter writer = response.getWriter();
+
         writer.println("ID,Patient,Doctor,Treatment,Amount,Payment Mode,Status,Date");
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -62,101 +59,120 @@ public class InvoiceController {
                     i.getAmount(), i.getPaymentMode(), i.getStatus(),
                     i.getDate() != null ? i.getDate().format(formatter) : "");
         }
+
         writer.flush();
         writer.close();
     }
 
-    // ===== PDF Downloads =====
+    // ✅ Download all invoices as PDF
     @GetMapping("/download/pdf")
     public void downloadPDF(HttpServletResponse response) throws IOException, DocumentException {
-        downloadPDFHelper(invoiceRepository.findAll(), response, "invoices.pdf");
-    }
-
-    @GetMapping("/download/pdf/{id}")
-    public void downloadPDFById(@PathVariable Long id, HttpServletResponse response) throws IOException, DocumentException {
-        Invoice invoice = invoiceRepository.findById(id).orElseThrow(() -> new RuntimeException("Invoice not found"));
-        downloadPDFHelper(List.of(invoice), response, "invoice_" + id + ".pdf");
-    }
-
-    private void downloadPDFHelper(List<Invoice> invoices, HttpServletResponse response, String filename) throws IOException, DocumentException {
         response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename=" + filename);
+        response.setHeader("Content-Disposition", "attachment; filename=invoices.pdf");
 
-        Document document = new Document(PageSize.A4, 36, 36, 54, 36);
+        List<Invoice> invoices = invoiceRepository.findAll();
+
+        Document document = new Document(PageSize.A4);
         PdfWriter.getInstance(document, response.getOutputStream());
         document.open();
 
-        // ===== Hospital Logo =====
-        String logoPath = "src/main/resources/static/img/img.png"; // uploaded logo
-        Image logo = Image.getInstance(logoPath);
-        logo.scaleToFit(100, 100);
-        logo.setAlignment(Element.ALIGN_LEFT);
-        document.add(logo);
-
-        // ===== Hospital Info =====
-        Font hospitalFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, BaseColor.BLUE);
-        Paragraph hospitalName = new Paragraph("My Hospital Name", hospitalFont);
-        hospitalName.setAlignment(Element.ALIGN_CENTER);
-        document.add(hospitalName);
-
-        Font infoFont = FontFactory.getFont(FontFactory.HELVETICA, 12, BaseColor.BLACK);
-        Paragraph address = new Paragraph("123 Main Street, City, State, ZIP\nPhone: 123-456-7890", infoFont);
-        address.setAlignment(Element.ALIGN_CENTER);
-        document.add(address);
-
-        document.add(Chunk.NEWLINE);
-
-        // ===== Invoice Title =====
-        Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.BLACK);
-        Paragraph title = new Paragraph("INVOICE", titleFont);
+        // ✅ Add header
+        Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
+        Paragraph title = new Paragraph("Hospital Invoice Report", titleFont);
         title.setAlignment(Element.ALIGN_CENTER);
         document.add(title);
-
+        document.add(new Paragraph("Generated on: " + java.time.LocalDateTime.now()));
         document.add(Chunk.NEWLINE);
 
-        // ===== Table =====
-        PdfPTable table = new PdfPTable(5);
+        // ✅ Table with headers
+        PdfPTable table = new PdfPTable(8);
         table.setWidthPercentage(100);
-        table.setWidths(new float[]{3, 5, 2, 2, 2});
+        table.setWidths(new float[]{1, 2, 2, 2, 1.5f, 2, 2, 2});
 
-        // Header row
-        String[] headers = {"ID", "Description / Treatment", "Unit Cost", "Qty", "Total"};
+        String[] headers = {"ID", "Patient", "Doctor", "Treatment", "Amount", "Payment Mode", "Status", "Date"};
         for (String h : headers) {
-            PdfPCell cell = new PdfPCell(new Phrase(h, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.WHITE)));
-            cell.setBackgroundColor(BaseColor.DARK_GRAY);
-            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cell.setPadding(5);
+            PdfPCell cell = new PdfPCell(new Phrase(h, FontFactory.getFont(FontFactory.HELVETICA_BOLD)));
+            cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
             table.addCell(cell);
         }
 
-        // Rows
-        double grandTotal = 0.0;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         for (Invoice i : invoices) {
             table.addCell(String.valueOf(i.getId()));
+            table.addCell(i.getPatientName());
+            table.addCell(i.getDoctorName());
             table.addCell(i.getTreatment());
-            table.addCell(String.format("%.2f", i.getAmount())); // Assuming unit cost = total
-            table.addCell("1"); // Quantity
-            table.addCell(String.format("%.2f", i.getAmount()));
-            grandTotal += i.getAmount() != null ? i.getAmount() : 0.0;
+            table.addCell(String.valueOf(i.getAmount()));
+            table.addCell(i.getPaymentMode());
+            table.addCell(i.getStatus());
+            table.addCell(i.getDate() != null ? i.getDate().format(formatter) : "");
         }
 
         document.add(table);
-
-        // ===== Total =====
-        Paragraph total = new Paragraph("TOTAL: $" + String.format("%.2f", grandTotal),
-                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.BLACK));
-        total.setAlignment(Element.ALIGN_RIGHT);
-        total.setSpacingBefore(10);
-        document.add(total);
-
-        // ===== Thank You =====
-        Paragraph thankYou = new Paragraph("Thank you for your visit!", FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 12));
-        thankYou.setAlignment(Element.ALIGN_CENTER);
-        thankYou.setSpacingBefore(20);
-        document.add(thankYou);
-
         document.close();
     }
 
+    // ✅ Individual invoice PDF
+    @GetMapping("/download/pdf/{id}")
+    public void downloadSinglePDF(@PathVariable Long id, HttpServletResponse response) throws IOException, DocumentException {
+        Invoice invoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Invoice not found"));
 
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=invoice_" + id + ".pdf");
+
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, response.getOutputStream());
+        document.open();
+
+        Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20);
+        Paragraph title = new Paragraph("Invoice #" + invoice.getId(), titleFont);
+        title.setAlignment(Element.ALIGN_CENTER);
+        document.add(title);
+        document.add(Chunk.NEWLINE);
+
+        PdfPTable table = new PdfPTable(2);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(10);
+
+        table.addCell("Patient Name");
+        table.addCell(invoice.getPatientName());
+        table.addCell("Doctor Name");
+        table.addCell(invoice.getDoctorName());
+        table.addCell("Treatment");
+        table.addCell(invoice.getTreatment());
+        table.addCell("Amount");
+        table.addCell(String.valueOf(invoice.getAmount()));
+        table.addCell("Payment Mode");
+        table.addCell(invoice.getPaymentMode());
+        table.addCell("Status");
+        table.addCell(invoice.getStatus());
+        table.addCell("Date");
+        table.addCell(invoice.getDate() != null ? invoice.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
+
+        document.add(table);
+        document.close();
+    }
+
+    // ✅ Individual invoice CSV
+    @GetMapping("/download/csv/{id}")
+    public void downloadSingleCSV(@PathVariable Long id, HttpServletResponse response) throws IOException {
+        Invoice invoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Invoice not found"));
+
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=invoice_" + id + ".csv");
+
+        PrintWriter writer = response.getWriter();
+        writer.println("ID,Patient,Doctor,Treatment,Amount,Payment Mode,Status,Date");
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        writer.printf("%d,%s,%s,%s,%.2f,%s,%s,%s%n",
+                invoice.getId(), invoice.getPatientName(), invoice.getDoctorName(), invoice.getTreatment(),
+                invoice.getAmount(), invoice.getPaymentMode(), invoice.getStatus(),
+                invoice.getDate() != null ? invoice.getDate().format(formatter) : "");
+
+        writer.flush();
+        writer.close();
+    }
 }

@@ -28,6 +28,18 @@ public class InvoiceService {
         return invoiceRepository.save(invoice);
     }
 
+    public List<Invoice> getAllInvoices() {
+        return invoiceRepository.findAll();
+    }
+
+    public void saveInvoice(Invoice invoice) {
+        invoiceRepository.save(invoice);
+    }
+
+    public Invoice getInvoiceById(Long id) {
+        return invoiceRepository.findById(id).orElse(null);
+    }
+
     public void deleteById(Long id) {
         invoiceRepository.deleteById(id);
     }
