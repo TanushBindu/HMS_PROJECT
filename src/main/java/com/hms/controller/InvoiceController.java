@@ -1,7 +1,11 @@
 package com.hms.controller;
 
+import com.hms.model.Doctor;
 import com.hms.model.Invoice;
+import com.hms.model.Patient;
+import com.hms.repository.DoctorRepository;
 import com.hms.repository.InvoiceRepository;
+import com.hms.repository.PatientRepository;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,14 +26,21 @@ public class InvoiceController {
     @Autowired
     private InvoiceRepository invoiceRepository;
 
+    @Autowired private PatientRepository patientRepository;
+    @Autowired private DoctorRepository doctorRepository;
+
+
     // ✅ Main invoice page
     @GetMapping
     public String viewInvoices(Model model) {
         List<Invoice> invoices = invoiceRepository.findAll();
+        List<Patient> patients = patientRepository.findAll();
+        List<Doctor> doctors = doctorRepository.findAll();
 
-        // ✅ Add both list and empty invoice object (for modal form)
         model.addAttribute("invoices", invoices);
         model.addAttribute("invoice", new Invoice());
+        model.addAttribute("patients", patients);
+        model.addAttribute("doctors", doctors);
 
         return "invoice";
     }
