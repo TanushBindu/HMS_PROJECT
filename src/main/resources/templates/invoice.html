@@ -2,77 +2,162 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Invoices - Hospital Management</title>
+    <title>Invoice & Income Dashboard - Hospital Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
-        body { background:#f8f9fa; }
-        .sidebar { width:250px; height:100vh; background:#0d6efd; color:white; position:fixed; top:0; left:0; padding-top:20px; }
-        .sidebar h3 { margin-left:20px; font-weight:bold; }
-        .sidebar .nav-link { color:white; padding:12px 20px; display:block; font-weight:500; }
-        .sidebar .nav-link:hover { background:#084298; border-radius:6px; }
-        .content { margin-left:250px; padding:30px; }
-        table { width:100%; background:white; border-radius:10px; box-shadow:0px 3px 10px rgba(0,0,0,0.1); }
+        body { background:#f8f9fa; display:flex; }
+        .sidebar {
+            width:250px; height:100vh; background:#0d6efd; color:white;
+            padding-top:20px; flex-shrink:0; position:fixed; top:0; left:0;
+        }
+        .sidebar h3 { text-align:center; font-weight:bold; margin-bottom:20px; }
+        .sidebar .nav-link {
+            color:white; padding:12px 20px; display:block; font-weight:500;
+        }
+        .sidebar .nav-link.active, .sidebar .nav-link:hover {
+            background:#084298; border-radius:6px;
+        }
+
+        .content {
+            margin-left:250px; padding:30px; width:calc(100% - 250px);
+            overflow-y:auto; transition:all 0.3s;
+        }
+
+        .stats-box {
+            background:white; border-radius:10px;
+            box-shadow:0 3px 10px rgba(0,0,0,0.1);
+            padding:15px; margin-bottom:15px; color:#333;
+        }
+        .stats-box h6 { margin:0; color:#0d6efd; font-weight:600; }
+        .stats-box p { margin:5px 0 0; font-size:18px; font-weight:600; }
+
+        table {
+            width:100%; background:white; border-radius:10px;
+            box-shadow:0px 3px 10px rgba(0,0,0,0.1);
+        }
         th, td { padding:12px; border-bottom:1px solid #ddd; text-align:center; }
         th { background-color:#0d6efd; color:white; }
+
+        /* Hide other sections by default */
+        #incomeSection, #invoiceSection { display:none; }
+        #invoiceSection.active, #incomeSection.active { display:block; }
+
+        #filterInfo {
+            display:none;
+            margin-bottom:10px;
+            color:#0d6efd;
+            font-weight:500;
+        }
     </style>
 </head>
-<body>
 
+<body>
+<!-- === Sidebar === -->
 <div class="sidebar">
     <h3>Dashboard</h3>
-    <a href="/patient" class="nav-link">Patients</a>
-    <a href="/doctor" class="nav-link">Doctors</a>
-    <a href="/appointments" class="nav-link">Appointments</a>
-    <a href="/staff" class="nav-link">Staff</a>
-    <a href="/invoice" class="nav-link">Invoices</a>
+    <a href="#" id="showIncome" class="nav-link active">💰 Income</a>
+    <a href="#" id="showInvoices" class="nav-link">📄 Invoices</a>
+    <hr>
     <a href="/logout" class="nav-link">Logout</a>
 </div>
 
+<!-- === Main Content === -->
 <div class="content">
-    <h2>Invoices</h2>
-    <div class="mb-3">
-        <a href="/invoice/download/pdf" class="btn btn-danger btn-sm">Download PDF</a>
-        <a href="/invoice/download/csv" class="btn btn-success btn-sm">Download CSV</a>
-        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#invoiceModal">
-            Generate New Invoice
-        </button>
+
+    <!-- ===== Income Section ===== -->
+    <div id="incomeSection" class="active">
+        <h2>Income Overview</h2>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stats-box">
+                    <h6>Total Invoices</h6>
+                    <p th:text="${totalInvoices}">120</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-box">
+                    <h6>Monthly Revenue</h6>
+                    <p th:text="${monthlyRevenue}">₹ 2,50,000</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-box">
+                    <h6>Yearly Revenue</h6>
+                    <p th:text="${yearlyRevenue}">₹ 12,80,000</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-box">
+                    <h6>Pending Amount</h6>
+                    <p th:text="${pendingAmount}">₹ 40,000</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-box">
+            <h6>Overall Income</h6>
+            <p th:text="${overallIncome}">₹ 15,50,000</p>
+        </div>
+
+        <div class="stats-box">
+            <h6>Monthly Revenue Trend</h6>
+            <canvas id="revenueChart" height="120"></canvas>
+            <small class="text-muted">Click on a bar to view invoices for that month</small>
+        </div>
     </div>
 
-    <table>
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Patient</th>
-            <th>Doctor</th>
-            <th>Treatment</th>
-            <th>Amount</th>
-            <th>Payment Mode</th>
-            <th>Status</th>
-            <th>Date</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="invoice : ${invoices}">
-            <td th:text="${invoice.id}">1</td>
-            <td th:text="${invoice.patientName}">Patient</td>
-            <td th:text="${invoice.doctorName}">Doctor</td>
-            <td th:text="${invoice.treatment}">Checkup</td>
-            <td th:text="${invoice.amount}">1000</td>
-            <td th:text="${invoice.paymentMode}">Cash</td>
-            <td th:text="${invoice.status}">Paid</td>
-            <td th:text="${#temporals.format(invoice.date, 'yyyy-MM-dd HH:mm')}">2025-10-11</td>
-            <td>
-                <a th:href="@{'/invoice/download/pdf/' + ${invoice.id}}" class="btn btn-danger btn-sm">PDF</a>
-                <a th:href="@{'/invoice/download/csv/' + ${invoice.id}}" class="btn btn-success btn-sm">CSV</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <!-- ===== Invoice Section ===== -->
+    <div id="invoiceSection">
+        <h2>Invoices</h2>
+
+        <div id="filterInfo"></div>
+
+        <div class="mb-3">
+            <a href="/invoice/download/pdf" class="btn btn-danger btn-sm">Download PDF</a>
+            <a href="/invoice/download/csv" class="btn btn-success btn-sm">Download CSV</a>
+            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#invoiceModal">
+                Generate New Invoice
+            </button>
+        </div>
+
+        <table id="invoiceTable">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Treatment</th>
+                <th>Amount</th>
+                <th>Payment Mode</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="invoice : ${invoices}">
+                <td th:text="${invoice.id}">1</td>
+                <td th:text="${invoice.patientName}">Patient</td>
+                <td th:text="${invoice.doctorName}">Doctor</td>
+                <td th:text="${invoice.treatment}">Checkup</td>
+                <td th:text="${invoice.amount}">1000</td>
+                <td th:text="${invoice.paymentMode}">Cash</td>
+                <td th:text="${invoice.status}">Paid</td>
+                <td th:text="${#temporals.format(invoice.date, 'yyyy-MM-dd HH:mm')}">2025-10-11</td>
+                <td>
+                    <a th:href="@{'/invoice/download/pdf/' + ${invoice.id}}" class="btn btn-danger btn-sm">PDF</a>
+                    <a th:href="@{'/invoice/download/csv/' + ${invoice.id}}" class="btn btn-success btn-sm">CSV</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<!-- ===== Invoice Modal Popup ===== -->
 <!-- ===== Invoice Modal Popup ===== -->
 <div class="modal fade" id="invoiceModal" tabindex="-1" aria-labelledby="invoiceModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -85,8 +170,6 @@
 
                 <div class="modal-body">
                     <div class="row g-3">
-
-                        <!-- Existing Patient Checkbox -->
                         <div class="col-12">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="existingPatientCheck" checked>
@@ -96,37 +179,32 @@
                             </div>
                         </div>
 
-                        <!-- Patient Name (Dropdown or Text Input) -->
                         <div class="col-md-6">
                             <label class="form-label">Patient Name</label>
-
-                            <!-- Dropdown (Existing Patient) -->
                             <select class="form-select" id="patientDropdown" th:field="*{patientName}">
                                 <option value="" disabled selected>Select Patient</option>
                                 <option th:each="p : ${patients}" th:value="${p.name}" th:text="${p.name}"></option>
                             </select>
-
-                            <!-- Text Field (Manual Entry) -->
-                            <input type="text" class="form-control mt-2 d-none" id="patientText" placeholder="Enter patient name manually" th:field="*{patientName}">
+                            <input type="text" class="form-control mt-2 d-none" id="patientText"
+                                   placeholder="Enter patient name manually" th:field="*{patientName}">
                         </div>
 
-                        <!-- Doctor Dropdown -->
                         <div class="col-md-6">
                             <label class="form-label">Doctor Name</label>
-                            <select class="form-select" th:field="*{doctorName}" required>
-                                <option value="" disabled selected>Select Doctor</option>
+                            <select class="form-select" name="doctorName" required>
+                                <option value="" selected disabled>Select Doctor</option>
                                 <option th:each="d : ${doctors}" th:value="${d.name}" th:text="${d.name}"></option>
                             </select>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Treatment</label>
-                            <input type="text" class="form-control" th:field="*{treatment}">
+                            <input type="text" class="form-control" th:field="*{treatment}" placeholder="Enter treatment details">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Amount</label>
-                            <input type="number" step="0.01" class="form-control" th:field="*{amount}" required>
+                            <input type="number" step="0.01" class="form-control" th:field="*{amount}" placeholder="Enter amount" required>
                         </div>
 
                         <div class="col-md-6">
@@ -159,23 +237,140 @@
     </div>
 </div>
 
-<!-- ===== Toggle Script ===== -->
+<!-- ===== JavaScript ===== -->
 <script>
+    // === Sidebar Toggle ===
+    const incomeBtn = document.getElementById('showIncome');
+    const invoiceBtn = document.getElementById('showInvoices');
+    const incomeSection = document.getElementById('incomeSection');
+    const invoiceSection = document.getElementById('invoiceSection');
+    const filterInfo = document.getElementById('filterInfo');
+
+    function switchTab(activeBtn, inactiveBtn, showSection, hideSection) {
+        activeBtn.classList.add('active');
+        inactiveBtn.classList.remove('active');
+        showSection.classList.add('active');
+        hideSection.classList.remove('active');
+    }
+
+    incomeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchTab(incomeBtn, invoiceBtn, incomeSection, invoiceSection);
+        filterInfo.style.display = "none";
+    });
+
+    invoiceBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchTab(invoiceBtn, incomeBtn, invoiceSection, incomeSection);
+        filterInfo.style.display = "none";
+        resetInvoiceFilter();
+    });
+
+    // === Patient Dropdown Toggle ===
     const checkbox = document.getElementById('existingPatientCheck');
     const dropdown = document.getElementById('patientDropdown');
     const textInput = document.getElementById('patientText');
-
     checkbox.addEventListener('change', () => {
-      if (checkbox.checked) {
-        dropdown.classList.remove('d-none');
-        textInput.classList.add('d-none');
-      } else {
-        dropdown.classList.add('d-none');
-        textInput.classList.remove('d-none');
-      }
+        if (checkbox.checked) {
+            dropdown.classList.remove('d-none');
+            textInput.classList.add('d-none');
+        } else {
+            dropdown.classList.add('d-none');
+            textInput.classList.remove('d-none');
+        }
     });
+
+    // === Chart.js for Income ===
+    const ctx = document.getElementById('revenueChart');
+    if (ctx) {
+        const monthlyLabels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const monthlyValues = [50000,75000,60000,90000,120000,110000,130000,140000,125000,135000,100000,95000];
+
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: monthlyLabels,
+                datasets: [{
+                    label: 'Monthly Revenue (₹)',
+                    data: monthlyValues,
+                    backgroundColor: '#0d6efd',
+                    borderColor: '#084298',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                onClick: (event, elements) => {
+                    if (elements.length > 0) {
+                        const idx = elements[0].index;
+                        const selectedMonth = monthlyLabels[idx];
+                        showInvoicesForMonth(selectedMonth);
+                    }
+                },
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // === Filter invoices by month ===
+    function showInvoicesForMonth(month) {
+        switchTab(invoiceBtn, incomeBtn, invoiceSection, incomeSection);
+        filterInfo.textContent = `📅 Showing invoices for ${month}`;
+        filterInfo.style.display = "block";
+
+        const rows = document.querySelectorAll("#invoiceTable tbody tr");
+        rows.forEach(row => {
+            const dateText = row.children[7].innerText;
+            if (!dateText) return;
+            const invoiceMonth = new Date(dateText).toLocaleString('default', { month: 'short' });
+            row.style.display = (invoiceMonth === month) ? "" : "none";
+        });
+    }
+
+    function resetInvoiceFilter() {
+        document.querySelectorAll("#invoiceTable tbody tr").forEach(row => {
+            row.style.display = "";
+        });
+    }
 </script>
 
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const monthlyData = [[${monthlyChart}]];
+    const monthlyLabels = Object.keys(monthlyData);
+    const monthlyValues = Object.values(monthlyData);
+
+    const ctx = document.getElementById('revenueChart');
+    if (ctx) {
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: monthlyLabels.map(m => m.substring(0,3)), // Short month names
+                datasets: [{
+                    label: 'Monthly Revenue (₹)',
+                    data: monthlyValues,
+                    backgroundColor: '#0d6efd',
+                    borderColor: '#084298',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                onClick: (event, elements) => {
+                    if (elements.length > 0) {
+                        const idx = elements[0].index;
+                        const selectedMonth = monthlyLabels[idx].substring(0,3);
+                        showInvoicesForMonth(selectedMonth);
+                    }
+                },
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+    /*]]>*/
+</script>
 
 </body>
 </html>

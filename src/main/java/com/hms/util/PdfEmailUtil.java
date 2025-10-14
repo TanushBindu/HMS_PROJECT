@@ -30,7 +30,7 @@ public class PdfEmailUtil {
     @GetMapping("/generate-pdf/{id}")
     @ResponseBody
     public String generatePdf(@PathVariable Long id) {
-        Invoice invoice = invoiceService.findById(id).orElse(null);
+        Invoice invoice = invoiceService.findById(id);
         if (invoice == null) {
             return "Invoice not found!";
         }
