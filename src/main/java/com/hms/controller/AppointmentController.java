@@ -11,7 +11,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -27,6 +29,9 @@ public class AppointmentController {
     @Autowired
     private DoctorService doctorService;
 
+
+    // --- Fetch appointment JSON for edit ---
+
     // --- Page ---
     @GetMapping
     public String showAppointmentsPage(Model model) {
@@ -37,28 +42,38 @@ public class AppointmentController {
         model.addAttribute("doctors", doctorService.findAll());
         model.addAttribute("appointment", new Appointment());
 
-        // Counts
         model.addAttribute("totalCount", appointments.size());
         model.addAttribute("todayCount", appointmentService.getTodayAppointmentsCount());
 
-        // Example chart data: appointments per day (Mon-Sun)
-        int[] weeklyCounts = appointmentService.getWeeklyAppointmentsCount(); // implement in service
+        int[] weeklyCounts = appointmentService.getWeeklyAppointmentsCount();
         model.addAttribute("weeklyCounts", weeklyCounts);
 
         return "appointments";
     }
 
-
     // --- Fetch appointment JSON for edit ---
     @GetMapping("/{id}")
     @ResponseBody
-    public Appointment getAppointment(@PathVariable Long id) {
+    public Map<String, Object> getAppointment(@PathVariable Long id) {
         Appointment appt = appointmentService.getAppointmentById(id)
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
-        // ensure lazy associations initialized
-        if (appt.getPatient() != null) appt.getPatient().getId();
-        if (appt.getDoctor() != null) appt.getDoctor().getId();
-        return appt;
+
+        // Create lightweight response map to avoid lazy loading/circular issues
+        Map<String, Object> dto = new HashMap<>();
+        dto.put("id", appt.getId());
+        dto.put("appointmentDate", appt.getAppointmentDate());
+        dto.put("reason", appt.getReason());
+        dto.put("status", appt.getStatus());
+
+        Map<String, Object> patient = new HashMap<>();
+        patient.put("id", appt.getPatient().getId());
+        dto.put("patient", patient);
+
+        Map<String, Object> doctor = new HashMap<>();
+        doctor.put("id", appt.getDoctor().getId());
+        dto.put("doctor", doctor);
+
+        return dto;
     }
 
     // --- Save new appointment ---
@@ -76,9 +91,8 @@ public class AppointmentController {
         return "redirect:/appointments";
     }
 
-
     // --- Update appointment ---
-    @PostMapping("/appointments/update")
+    @PostMapping("/update")  // ✅ FIXED PATH
     public String updateAppointment(@ModelAttribute Appointment appointment) {
         Appointment existing = appointmentService.getAppointmentById(appointment.getId())
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
@@ -94,6 +108,7 @@ public class AppointmentController {
 
         existing.setPatient(patient);
         existing.setDoctor(doctor);
+
         appointmentService.saveAppointment(existing);
         return "redirect:/appointments";
     }
