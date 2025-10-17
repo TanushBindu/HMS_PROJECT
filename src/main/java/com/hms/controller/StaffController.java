@@ -3,6 +3,7 @@ package com.hms.controller;
 import com.hms.model.Staff;
 import com.hms.repository.StaffRepository;
 import com.hms.service.StaffService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ public class StaffController {
     private final StaffService staffService;
     private StaffRepository staffRepository;
 
+    @Autowired
     public StaffController(StaffService staffService) {
         this.staffService = staffService;
     }
@@ -37,18 +39,18 @@ public class StaffController {
         return staffService.getStaffById(id);
     }
 
+
     @PostMapping("/save")
-    public String saveStaff(@ModelAttribute Staff staff, Model model) {
-        // basic validation: username must be unique
-        Staff existing = staffRepository.findByUsername(staff.getUsername());
+    public String saveStaff(@ModelAttribute Staff staff) {
+        // ✅ Use service — do NOT use repository directly
+        Staff existing = staffService.getByUsername(staff.getUsername());
         if (existing != null) {
-            model.addAttribute("error", "Username already exists!");
-            model.addAttribute("staffList", staffRepository.findAll());
-            return "staff"; // return to staff page with error
+            // handle duplicate username logic
+            return "redirect:/staff/create?error=exists";
         }
 
-        staffRepository.save(staff);
-        return "redirect:/staff";
+        staffService.saveStaff(staff);
+        return "redirect:/staff/list";
     }
 
     @PostMapping("/update")

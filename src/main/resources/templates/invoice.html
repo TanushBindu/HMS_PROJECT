@@ -61,8 +61,6 @@
     <a href="#" id="showIncome" class="nav-link active">💰 Income</a>
     <a href="#" id="showInvoices" class="nav-link">📄 Invoices</a>
     <a href="#" id="showWaste" class="nav-link">🧪 Biomedical Waste</a>
-    <hr>
-    <a href="/logout" class="nav-link">Logout</a>
 </div>
 
 <!-- Main Content -->
@@ -207,5 +205,41 @@
         document.querySelectorAll("#invoiceTable tbody tr").forEach(row=>row.style.display="");
     }
 </script>
+
+<script>
+    // Assuming you pass a List<Double> from your controller: monthlyRevenueData
+    const monthlyRevenue = /*[[${monthlyRevenueData}]]*/ [12000, 15000, 13000, 17000, 20000, 18000, 22000, 25000, 24000, 26000, 28000, 30000];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    const revenueChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Monthly Revenue',
+                data: monthlyRevenue,
+                borderColor: 'rgba(13, 110, 253, 1)',
+                backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true, position: 'top' }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { callback: value => '₹ ' + value.toLocaleString() }
+                }
+            }
+        }
+    });
+</script>
+
 </body>
 </html>

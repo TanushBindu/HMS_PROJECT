@@ -2,6 +2,7 @@ package com.hms.service;
 
 import com.hms.model.Staff;
 import com.hms.repository.StaffRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,6 +12,7 @@ public class StaffService {
 
     private final StaffRepository staffRepository;
 
+    @Autowired
     public StaffService(StaffRepository staffRepository) {
         this.staffRepository = staffRepository;
     }
@@ -33,6 +35,10 @@ public class StaffService {
 
     public Staff saveStaff(Staff staff) {
         return staffRepository.save(staff);
+    }
+
+    public Staff getByUsername(String username) {
+        return staffRepository.findByUsername(username);
     }
 
     public void deleteStaff(Long id) {
