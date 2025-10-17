@@ -14,6 +14,14 @@ public class DoctorService {
     @Autowired
     private DoctorRepository doctorRepository;
 
+    public long countAllDoctors() {
+        return doctorRepository.count();
+    }
+
+    public List<Doctor> getAvailableDoctors() {
+        return doctorRepository.findByAvailableTodayTrue(); // assumes you have `available` field
+    }
+
     public List<Doctor> findAll() {
         return doctorRepository.findByIsActiveTrue();
     }

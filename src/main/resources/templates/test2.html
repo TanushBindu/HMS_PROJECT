@@ -1,0 +1,30 @@
+<html>
+<head>
+    <title>CALCULATOR</title>
+    <style>
+        input { width: 60px; height: 60px; font-size: 24px; margin: 2px; }
+    </style>
+</head>
+<body>
+<div align="center">
+    <h2>SIMPLE CALCULATOR</h2>
+    <form name="cal">
+        <input type="text" name="get" id="display" readonly>
+        <br>
+        <script type="text/javascript">
+            let buttons = ['1','2','3','+','4','5','6','-','7','8','9','*','C','0','=','/'];
+            for (let i = 0; i < buttons.length; i++) {
+                if (buttons[i] === 'C') {
+                    document.write('<input type="button" value="C" onclick="cal.get.value=\'\'">');
+                } else if (buttons[i] === '=') {
+                    document.write('<input type="button" value="=" onclick="cal.get.value=eval(cal.get.value)">');
+                } else {
+                    document.write('<input type="button" value="' + buttons[i] + '" onclick="cal.get.value+=\'' + buttons[i] + '\'">');
+                }
+                if ((i+1) % 4 === 0) document.write('<br>');
+            }
+        </script>
+    </form>
+</div>
+</body>
+</html>

@@ -2,6 +2,7 @@ package com.hms.service;
 
 import com.hms.model.Appointment;
 import com.hms.repository.AppointmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -12,10 +13,24 @@ import java.util.Optional;
 @Service
 public class AppointmentService {
 
-    private final AppointmentRepository appointmentRepository;
+
+    @Autowired
+    private AppointmentRepository appointmentRepository;
 
     public AppointmentService(AppointmentRepository appointmentRepository) {
         this.appointmentRepository = appointmentRepository;
+    }
+
+
+    public long countAllAppointments() {
+        return appointmentRepository.count();
+    }
+
+    public long countAppointmentsByDate(LocalDate date) {
+        return appointmentRepository.countByAppointmentDateBetween(
+                date.atStartOfDay(),
+                date.plusDays(1).atStartOfDay()
+        );
     }
 
 //    public long getTodayAppointmentsCount() {

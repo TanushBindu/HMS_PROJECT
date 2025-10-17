@@ -78,7 +78,7 @@ public class AppointmentController {
 
 
     // --- Update appointment ---
-    @PostMapping("/update")
+    @PostMapping("/appointments/update")
     public String updateAppointment(@ModelAttribute Appointment appointment) {
         Appointment existing = appointmentService.getAppointmentById(appointment.getId())
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));

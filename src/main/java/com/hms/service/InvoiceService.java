@@ -2,6 +2,7 @@ package com.hms.service;
 
 import com.hms.model.Invoice;
 import com.hms.repository.InvoiceRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -12,7 +13,33 @@ import java.util.stream.Collectors;
 @Service
 public class InvoiceService {
 
-    private final InvoiceRepository invoiceRepository;
+    @Autowired
+    private InvoiceRepository invoiceRepository;
+
+    public List<Invoice> getAllInvoices() {
+        return invoiceRepository.findAll();
+    }
+
+
+    public Long countInvoices() {
+        return invoiceRepository.countInvoices();
+    }
+
+    public Double getMonthlyRevenue() {
+        return invoiceRepository.getMonthlyRevenue() != null ? invoiceRepository.getMonthlyRevenue() : 0.0;
+    }
+
+    public Double getYearlyRevenue() {
+        return invoiceRepository.getYearlyRevenue() != null ? invoiceRepository.getYearlyRevenue() : 0.0;
+    }
+
+    public Double getPendingAmount() {
+        return invoiceRepository.getPendingAmount() != null ? invoiceRepository.getPendingAmount() : 0.0;
+    }
+
+    public Double getOverallIncome() {
+        return invoiceRepository.getOverallIncome() != null ? invoiceRepository.getOverallIncome() : 0.0;
+    }
 
     public InvoiceService(InvoiceRepository invoiceRepository) {
         this.invoiceRepository = invoiceRepository;

@@ -1,6 +1,8 @@
 package com.hms.controller;
 
 import com.hms.model.Patient;
+import com.hms.repository.AppointmentRepository;
+import com.hms.repository.DoctorRepository;
 import com.hms.service.AppointmentService;
 import com.hms.service.DoctorService;
 import com.hms.service.PatientService;
@@ -10,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Controller
@@ -20,9 +23,30 @@ public class DashboardController {
     @Autowired private DoctorService doctorService;
     @Autowired private AppointmentService appointmentService;
 
+    @Autowired
+    private AppointmentRepository appointmentRepository;
+
+    @Autowired
+    private DoctorRepository doctorRepository;
+
     @GetMapping("/dashboard")
-    public String dashboard(Model model, Principal principal)
-    {
+    public String showDashboard(Model model) {
+        long totalAppointments = appointmentRepository.count();
+        long totalDoctors = doctorRepository.count();
+        long todayAppointments = appointmentRepository.countTodayAppointments();
+
+        // ✅ Use availableToday instead of available
+        model.addAttribute("totalAppointments", totalAppointments);
+        model.addAttribute("totalDoctors", totalDoctors);
+        model.addAttribute("todayAppointments", todayAppointments);
+        model.addAttribute("availableDoctors", doctorRepository.findByAvailableTodayTrue());
+
+        return "dashboard";
+    }
+
+//    @GetMapping("/dashboard")
+//    public String dashboard(Model model, Principal principal)
+//    {
 //        String role = userService.getRole(principal.getName());
 //        model.addAttribute("role", role);
 //
@@ -39,6 +63,6 @@ public class DashboardController {
 //            model.addAttribute("todaysAppointments", appointmentService.todaysAppointments());
 //        }
 
-        return "dashboard";
-    }
+//        return "dashboard";
+//    }
 }

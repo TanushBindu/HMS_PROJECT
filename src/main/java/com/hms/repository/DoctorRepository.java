@@ -20,4 +20,5 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
                                @Param("available") Boolean available);
 
     List<Doctor> findByIsActiveTrue();
+    List<Doctor> findByAvailableTodayTrue();
 }

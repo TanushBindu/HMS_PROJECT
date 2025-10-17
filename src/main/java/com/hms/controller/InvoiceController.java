@@ -1,6 +1,8 @@
 package com.hms.controller;
 
+import com.hms.model.BiomedicalWaste;
 import com.hms.model.Invoice;
+import com.hms.service.BiomedicalWasteService;
 import com.hms.service.InvoiceService;
 import com.hms.service.DoctorService;
 import com.hms.service.PatientService;
@@ -32,23 +34,30 @@ public class InvoiceController {
 
     @Autowired
     private PatientService patientService;
+    @Autowired
+    private BiomedicalWasteService biomedicalWasteService;
+
+    public InvoiceController(InvoiceService invoiceService, BiomedicalWasteService biomedicalWasteService) {
+        this.invoiceService = invoiceService;
+        this.biomedicalWasteService = biomedicalWasteService;
+    }
+
 
     /**
      * ✅ Combined Invoice & Income Page
      */
     @GetMapping
-    public String showInvoiceDashboard(Model model) {
-        List<Invoice> invoices = invoiceService.findAll();
-        Map<String, Object> stats = invoiceService.getIncomeStats();
-
-        model.addAttribute("invoices", invoices);
-        model.addAttribute("invoice", new Invoice());
-        model.addAllAttributes(stats);
-
-        model.addAttribute("patients", patientService.getAllPatients());
-        model.addAttribute("doctors", doctorService.findAll());
-
-        return "invoice"; // invoice.html (your combined UI)
+    public String showInvoicePage(Model model) {
+        // all your model attributes here
+        model.addAttribute("totalInvoices", invoiceService.countInvoices());
+        model.addAttribute("monthlyRevenue", invoiceService.getMonthlyRevenue());
+        model.addAttribute("yearlyRevenue", invoiceService.getYearlyRevenue());
+        model.addAttribute("pendingAmount", invoiceService.getPendingAmount());
+        model.addAttribute("overallIncome", invoiceService.getOverallIncome());
+        model.addAttribute("invoices", invoiceService.getAllInvoices());
+        model.addAttribute("biomedicalWasteList", biomedicalWasteService.getAllWaste());
+        model.addAttribute("waste", new BiomedicalWaste());
+        return "invoice"; // <— this must match templates/invoice.html
     }
 
     /**
@@ -84,6 +93,25 @@ public class InvoiceController {
         writer.close();
     }
 
+    @PostMapping("/biomedical-waste/save")
+    public String saveWaste(@ModelAttribute("waste") BiomedicalWaste waste) {
+        biomedicalWasteService.saveWaste(waste);
+        return "redirect:/invoice";
+    }
+
+    @GetMapping("/biomedical-waste/edit/{id}")
+    public String editWaste(@PathVariable Long id, Model model) {
+        BiomedicalWaste waste = biomedicalWasteService.getById(id);
+        model.addAttribute("waste", waste);
+        model.addAttribute("biomedicalWasteList", biomedicalWasteService.getAllWaste());
+        return "invoice";
+    }
+
+    @GetMapping("/biomedical-waste/delete/{id}")
+    public String deleteWaste(@PathVariable Long id) {
+        biomedicalWasteService.deleteWaste(id);
+        return "redirect:/invoice";
+    }
     /**
      * ✅ Download all invoices as PDF
      */
